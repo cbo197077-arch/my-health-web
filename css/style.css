@@ -1,0 +1,139 @@
+:root {
+    --primary: #799488;
+    --text-main: #2d3748;
+    --blur-amount: 16px;
+    --glass-bg: rgba(255, 255, 255, 0.45);
+}
+
+body, input, textarea, select, button {
+    font-family: var(--font-main);
+    color: var(--text-main) !important;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    background-color: #2c3e50;
+}
+
+.bg-primary { background-color: var(--primary) !important; }
+.text-primary { color: var(--primary) !important; }
+.border-primary { border-color: var(--primary) !important; }
+
+.glass-card, .glass-card text, .glass-card span, .glass-card h2, .glass-card h3, .glass-card input {
+    color: var(--text-main);
+}
+
+/* Thẻ kính mờ hỗ trợ GPU Acceleration tăng tốc mượt mà */
+.glass-card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(var(--blur-amount));
+    -webkit-backdrop-filter: blur(var(--blur-amount));
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    border-radius: 24px;
+    box-shadow: 0 10px 35px rgba(0, 0, 0, 0.05);
+    transition: background 0.3s, backdrop-filter 0.3s;
+    transform: translateZ(0);
+}
+
+.glass-nav {
+    background: rgba(255, 255, 255, 0.65);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    transform: translateZ(0);
+}
+
+.glass-input {
+    background: rgba(255, 255, 255, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    outline: none;
+}
+.glass-input:focus { border-color: var(--primary); background: rgba(255, 255, 255, 0.7); }
+
+/* THÚ CƯNG HITECH TRẮNG TUYẾT */
+.big-pet-mascot {
+    animation: floatingMascot 2.5s ease-in-out infinite alternate;
+    will-change: transform;
+}
+@keyframes floatingMascot {
+    0% { transform: translate3d(0, 2px, 0) scale(1); }
+    100% { transform: translate3d(0, -5px, 0) scale(1.05); }
+}
+
+.mood-btn.active {
+    background-color: var(--primary) !important;
+    color: white !important;
+    transform: scale(1.08);
+}
+
+/* LỊCH SKINCARE */
+.calendar-day {
+    position: relative;
+    width: 38px;
+    height: 38px;
+    margin: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-weight: 700;
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255,255,255,0.3);
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+.calendar-day.completed {
+    border: 3px solid #10b981;
+    color: #10b981 !important;
+    background: rgba(16, 185, 129, 0.12);
+    font-weight: 800;
+}
+.calendar-day.completed::after {
+    content: "Đã xong";
+    position: absolute;
+    bottom: -15px;
+    font-size: 8px;
+    font-weight: 800;
+    color: #10b981;
+    white-space: nowrap;
+    text-transform: uppercase;
+}
+.calendar-day.today {
+    background-color: white;
+    border-color: var(--primary);
+}
+
+/* Checkbox */
+.habit-checkbox {
+    appearance: none;
+    width: 24px;
+    height: 24px;
+    background: rgba(255,255,255,0.7);
+    border: 2px solid #cbd5e1;
+    border-radius: 8px;
+    cursor: pointer;
+    position: relative;
+}
+.habit-checkbox:checked { background-color: var(--primary) !important; border-color: var(--primary) !important; }
+.habit-checkbox:checked::after {
+    content: '✔'; color: white; font-size: 13px; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+}
+
+/* HIỆU ỨNG CỘNG XP BAY SIÊU MƯỢT */
+.xp-float {
+    position: absolute; 
+    color: var(--primary); 
+    font-weight: 900; 
+    font-size: 20px; 
+    animation: floatUp 0.8s cubic-bezier(0.25, 1, 0.5, 1) forwards; 
+    pointer-events: none; 
+    z-index: 100;
+    will-change: transform, opacity;
+}
+@keyframes floatUp {
+    0% { opacity: 1; transform: translate3d(-50%, 0, 0) scale(0.8); }
+    100% { opacity: 0; transform: translate3d(-50%, -45px, 0) scale(1.2); }
+}
+
+.animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+.pb-safe { padding-bottom: calc(0.5rem + env(safe-area-inset-bottom)); }
