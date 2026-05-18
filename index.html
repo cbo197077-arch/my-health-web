@@ -23,6 +23,28 @@
         </div>
     </div>
 
+    <div id="healing-popup" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-md flex items-center justify-center p-4 hidden animate-fade-in">
+        <div class="glass-card p-6 text-center max-w-sm border-2 border-rose-300 bg-white/95 shadow-[0_0_50px_rgba(251,113,133,0.25)] relative overflow-hidden">
+            <div class="absolute -top-10 -right-10 w-24 h-24 bg-rose-200 rounded-full blur-2xl opacity-50"></div>
+            <div class="text-5xl mb-3 animate-pulse">🫂</div>
+            <h3 class="text-lg font-extrabold text-rose-500 uppercase mb-2 tracking-wide">Thương bạn quá!</h3>
+            <p class="text-sm font-semibold text-gray-700 mt-2 leading-relaxed">
+                Hôm nay có vẻ là một ngày mệt mỏi và nhiều cảm xúc nhỉ. Cứ khóc hay tức giận nếu muốn nhé, không sao đâu!
+            </p>
+            <div class="mt-4 bg-rose-50/80 p-3.5 rounded-xl border border-rose-100 text-left relative">
+                <i class="ph-fill ph-paw-print text-rose-400 text-2xl absolute -top-3 -right-2 transform rotate-12 opacity-40"></i>
+                <p class="text-xs font-bold text-gray-800">
+                    💡 <span class="text-rose-500 font-extrabold">Gợi ý nhỏ:</span> Bạn có muốn sang tâm sự với <span class="text-amber-500 font-black">AI Cún Corgi</span> không? Cún rất giỏi lắng nghe, không phán xét và luôn sẵn sàng xoa dịu những nỗi buồn này cùng bạn đó.
+                </p>
+            </div>
+            
+            <div class="flex gap-2 mt-5">
+                <button id="btn-chat-cun" class="flex-1 bg-amber-500 hover:bg-amber-600 text-white font-bold px-3 py-2.5 rounded-xl text-sm shadow-md transition-colors border border-amber-400">Tâm sự với Cún 🐶</button>
+                <button id="btn-close-healing" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold px-3 py-2.5 rounded-xl text-sm shadow-md transition-colors border border-gray-300">Không phải bây giờ</button>
+            </div>
+        </div>
+    </div>
+
     <div class="max-w-md mx-auto min-h-screen pb-28 relative pt-6 px-4 z-10">
         
         <div class="flex justify-between items-center mb-5 w-full glass-card p-4 bg-gradient-to-br from-white/50 to-white/20 border border-white/50 shadow-md">
@@ -65,7 +87,6 @@
         </div>
 
         <main id="main-content">
-            
             <section id="tab-habits" class="tab-content active space-y-5">
                 <div class="glass-card p-5">
                     <div class="mb-4">
@@ -96,16 +117,29 @@
                     </div>
                     <div id="fitness-list" class="space-y-3"></div>
                 </div>
+
+                <div class="glass-card p-5">
+                    <div class="flex justify-between items-start mb-3">
+                        <h2 class="font-bold text-lg flex items-center gap-2"><i class="ph ph-calendar-plus text-primary text-2xl"></i> Thói Quen Tự Tạo</h2>
+                    </div>
+                    
+                    <div class="flex gap-2 mb-4 bg-white/30 p-2.5 rounded-2xl border border-white/40">
+                        <input type="text" id="new-custom-habit-input" placeholder="Nhập thói quen (VD: Đọc sách, Thiền...)" class="flex-1 p-2 rounded-xl glass-input text-sm font-semibold">
+                        <button id="btn-add-custom-habit" class="bg-primary text-white px-5 rounded-xl font-bold shadow-md hover:brightness-110">+</button>
+                    </div>
+                    
+                    <div id="custom-habits-container" class="flex flex-col gap-4"></div>
+                </div>
             </section>
 
             <section id="tab-journal" class="tab-content hidden space-y-5">
                 <div class="glass-card p-5 space-y-3">
                     <h2 class="font-bold text-base flex items-center gap-2"><i class="ph ph-notebook text-primary text-xl"></i> Viết Nhật Ký Cảm Xúc</h2>
                     <div class="flex justify-between items-center gap-2 py-1">
-                        <button class="mood-btn text-2xl p-2 rounded-xl bg-white/40 hover:bg-white/80 transition-all flex-1 shadow-sm" data-mood="🥰">🥰</button>
-                        <button class="mood-btn text-2xl p-2 rounded-xl bg-white/40 hover:bg-white/80 transition-all flex-1 shadow-sm" data-mood="⚡">⚡</button>
-                        <button class="mood-btn text-2xl p-2 rounded-xl bg-white/40 hover:bg-white/80 transition-all flex-1 shadow-sm" data-mood="😴">😴</button>
-                        <button class="mood-btn text-2xl p-2 rounded-xl bg-white/40 hover:bg-white/80 transition-all flex-1 shadow-sm" data-mood="😵">😵</button>
+                        <button class="mood-btn text-2xl p-2 rounded-xl bg-white/40 hover:bg-white/80 transition-all flex-1 shadow-sm" data-mood="😊">😊</button>
+                        <button class="mood-btn text-2xl p-2 rounded-xl bg-white/40 hover:bg-white/80 transition-all flex-1 shadow-sm" data-mood="😭">😭</button>
+                        <button class="mood-btn text-2xl p-2 rounded-xl bg-white/40 hover:bg-white/80 transition-all flex-1 shadow-sm" data-mood="😡">😡</button>
+                        <button class="mood-btn text-2xl p-2 rounded-xl bg-white/40 hover:bg-white/80 transition-all flex-1 shadow-sm" data-mood="😨">😨</button>
                     </div>
                     <textarea id="journal-text" rows="3" placeholder="Hôm nay tâm trạng bạn thế nào? Vì sao vui hay điều gì khiến bạn mệt mỏi? Ghi lại ở đây nhé..." class="w-full p-2.5 text-xs font-semibold rounded-xl glass-input resize-none"></textarea>
                     <div class="flex justify-between items-center">
@@ -118,20 +152,44 @@
                         <div id="journal-history-list" class="space-y-3 max-h-64 overflow-y-auto pr-1"></div>
                     </div>
                 </div>
+
+                <div id="cun-chat-section" class="glass-card p-4 border-l-4 border-amber-400 bg-gradient-to-br from-amber-50/10 to-transparent">
+                    <h3 class="text-sm font-bold mb-3 flex items-center gap-1.5 tracking-wide text-amber-600 uppercase"><i class="ph-fill ph-paw-print text-xl animate-pulse"></i> Trạm Tâm Sự Cùng Cún Corgi</h3>
+                    
+                    <div class="glass-card p-3 flex flex-col h-[320px] relative overflow-hidden border border-amber-200 shadow-sm bg-white/30">
+                        <div class="flex flex-1 h-full gap-2 relative overflow-hidden mb-2">
+                            <div id="cun-chat-box" class="w-[70%] h-full overflow-y-auto space-y-3 pr-1 text-xs scroll-smooth">
+                                <div class="bg-amber-100 p-3 rounded-2xl border border-amber-200 text-amber-900 shadow-sm font-medium leading-relaxed">
+                                    Gâu gâu! 🐶 Mình là Cún Corgi đây. Cậu đang có tâm sự gì à, kể Cún nghe đi, Cún sẽ ngoan ngoãn lắng nghe và giữ bí mật cho cậu! ❤️
+                                </div>
+                            </div>
+            
+                            <div class="w-[30%] h-full flex flex-col justify-center items-center bg-amber-50/60 border border-amber-200 rounded-2xl p-1 relative shadow-sm overflow-hidden">
+                                <div class="text-[50px] animate-bounce drop-shadow-md mb-1">🐶</div>
+                                <div class="bg-gradient-to-r from-amber-400 to-orange-400 text-white font-black text-[9px] px-2 py-0.5 rounded-full shadow-md z-10">Cún Corgi</div>
+                                <div class="text-lg mt-2 drop-shadow-sm animate-pulse">🦴</div>
+                            </div>
+                        </div>
+            
+                        <div class="flex gap-1.5 mt-2 pt-2 border-t border-amber-400/20">
+                            <input type="text" id="cun-chat-input" placeholder="Vuốt ve và tâm sự với Cún..." class="flex-1 p-2 rounded-xl glass-input text-xs font-semibold focus:border-amber-400">
+                            <button id="btn-send-cun" class="bg-amber-500 hover:bg-amber-600 text-white px-3.5 rounded-xl font-bold shadow flex items-center justify-center transition-colors"><i class="ph-fill ph-paw-print text-base"></i></button>
+                        </div>
+                    </div>
+                </div>
             </section>
 
             <section id="tab-notes" class="tab-content hidden space-y-5">
                 <div class="glass-card p-5 space-y-3">
                     <h2 class="font-bold text-base flex items-center gap-2"><i class="ph ph-note text-primary text-xl"></i> Sổ Tay Ghi Chú</h2>
-                    <textarea id="note-text" rows="4" placeholder="Nhập những mẹo hay, lời nhắc nhở hoặc kiến thức từ Buddy để note lại tại đây nhé..." class="w-full p-2.5 text-xs font-semibold rounded-xl glass-input resize-none"></textarea>
+                    <textarea id="note-text" rows="4" placeholder="Nhập những mẹo hay, lời nhắc nhở hoặc kiến thức từ Buddy/Cún để note lại tại đây nhé..." class="w-full p-2.5 text-xs font-semibold rounded-xl glass-input resize-none"></textarea>
                     <div class="flex justify-end">
                         <button id="btn-save-note" class="bg-primary text-white text-xs font-bold px-5 py-2 rounded-xl shadow-md">Lưu ghi chú</button>
                     </div>
                     
                     <div class="border-t border-black/5 pt-3 mt-3">
                         <div class="text-xs font-bold opacity-60 mb-3 uppercase tracking-wider flex items-center gap-1"><i class="ph ph-list-bullets"></i> Danh sách ghi chú đã lưu</div>
-                        <div id="notes-history-list" class="space-y-3 max-h-64 overflow-y-auto pr-1">
-                            </div>
+                        <div id="notes-history-list" class="space-y-3 max-h-64 overflow-y-auto pr-1"></div>
                     </div>
                 </div>
             </section>
@@ -214,7 +272,7 @@
                     
                     <div>
                         <label class="block text-sm font-bold mb-1">Mã kết nối Gemini API Key</label>
-                        <input type="password" id="gemini-key-input" placeholder="Dán API Key..." class="w-full p-2.5 rounded-xl glass-input text-xs font-mono">
+                        <input type="password" id="gemini-key-input" placeholder="Dán API Key từ Google AI Studio..." class="w-full p-2.5 rounded-xl glass-input text-xs font-mono">
                     </div>
 
                     <div>
@@ -275,6 +333,11 @@
                             <input type="text" id="custom-bg-input" placeholder="Dán liên kết hình ảnh hoặc video..." class="w-full p-2.5 rounded-xl glass-input text-sm">
                             <button id="btn-apply-bg" class="bg-primary text-white px-4 rounded-xl font-bold text-sm shadow">Thay</button>
                         </div>
+                    </div>
+
+                    <div class="flex items-center justify-between py-2 border-t border-black/5">
+                        <span class="text-sm font-bold">Hiệu ứng kính mờ (Glassmorphism)</span>
+                        <input type="checkbox" id="toggle-glass" checked class="habit-checkbox w-6 h-6">
                     </div>
 
                     <div class="flex items-center justify-between py-2 border-t border-black/5">

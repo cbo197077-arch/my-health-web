@@ -1,11 +1,33 @@
+// LẮNG NGHE SỰ KIỆN BẬT/TẮT HIỆU ỨNG GLASS
+document.getElementById('toggle-glass').addEventListener('change', (e) => {
+    window.appState.glassEnabled = e.target.checked;
+    
+    const isGlass = window.appState.glassEnabled;
+    if (isGlass) {
+        const blurVal = parseInt(window.appState.blurAmount) || 16;
+        const alpha = Math.max(0.15, 0.6 - (blurVal / 100));
+        document.documentElement.style.setProperty('--glass-bg', `rgba(255, 255, 255, ${alpha})`);
+        document.documentElement.style.setProperty('--blur-amount', window.appState.blurAmount);
+    } else {
+        document.documentElement.style.setProperty('--glass-bg', 'rgba(255, 255, 255, 0.95)');
+        document.documentElement.style.setProperty('--blur-amount', '0px');
+    }
+    
+    window.saveDataToStorage();
+});
+
+// Điều chỉnh lại thanh kéo mờ cho khớp với trạng thái Glass
 document.getElementById('range-blur').addEventListener('input', (e) => {
     const blur = e.target.value;
     document.getElementById('blur-val').innerText = `${blur}px`;
     window.appState.blurAmount = `${blur}px`;
-    const alpha = Math.max(0.15, 0.6 - (blur / 100));
-    window.appState.glassBg = `rgba(255, 255, 255, ${alpha})`;
-    document.documentElement.style.setProperty('--blur-amount', window.appState.blurAmount);
-    document.documentElement.style.setProperty('--glass-bg', window.appState.glassBg);
+    
+    if (window.appState.glassEnabled !== false) {
+        const alpha = Math.max(0.15, 0.6 - (blur / 100));
+        window.appState.glassBg = `rgba(255, 255, 255, ${alpha})`;
+        document.documentElement.style.setProperty('--blur-amount', window.appState.blurAmount);
+        document.documentElement.style.setProperty('--glass-bg', window.appState.glassBg);
+    }
     window.saveDataToStorage();
 });
 
@@ -82,7 +104,6 @@ document.getElementById('btn-apply-bg').addEventListener('click', (e) => {
     }
 });
 
-// ĐỔI SỰ KIỆN SANG 'INPUT' ĐỂ LƯU KEY NGAY LẬP TỨC KHI VỪA DÁN
 document.getElementById('gemini-key-input').addEventListener('input', (e) => {
     window.appState.geminiKey = e.target.value.trim(); window.saveDataToStorage();
 });

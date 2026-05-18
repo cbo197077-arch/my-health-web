@@ -42,6 +42,7 @@ window.appState = savedState || {
     username: "Người lữ hành",
     avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=200",
     soundEnabled: true,
+    glassEnabled: true, // THÊM TRẠNG THÁI BẬT TẮT GLASS
     themeColor: '#799488',
     textColor: '#2d3748',
     titleColor: '#ffffff',
@@ -70,7 +71,22 @@ function applySavedTheme() {
     document.documentElement.style.setProperty('--primary', window.appState.themeColor);
     document.documentElement.style.setProperty('--text-main', window.appState.textColor || '#2d3748');
     document.documentElement.style.setProperty('--font-main', window.appState.fontMain);
-    document.documentElement.style.setProperty('--blur-amount', window.appState.blurAmount);
+    
+    // ÁP DỤNG TRẠNG THÁI HIỆU ỨNG GLASS
+    if (document.getElementById('toggle-glass')) {
+        document.getElementById('toggle-glass').checked = window.appState.glassEnabled !== false;
+    }
+    const isGlass = window.appState.glassEnabled !== false;
+    if (isGlass) {
+        const blurVal = parseInt(window.appState.blurAmount) || 16;
+        const alpha = Math.max(0.15, 0.6 - (blurVal / 100));
+        document.documentElement.style.setProperty('--glass-bg', `rgba(255, 255, 255, ${alpha})`);
+        document.documentElement.style.setProperty('--blur-amount', window.appState.blurAmount);
+    } else {
+        // Tắt Glass: Làm nền trắng đặc, bỏ nhòe
+        document.documentElement.style.setProperty('--glass-bg', 'rgba(255, 255, 255, 0.95)');
+        document.documentElement.style.setProperty('--blur-amount', '0px');
+    }
     
     const overlay = document.getElementById('bg-blur-overlay');
     if (overlay) overlay.style.backdropFilter = `blur(${window.appState.bgBlurAmount || '0px'})`;
@@ -152,7 +168,16 @@ window.triggerNewQuote = function() {
 window.updateXP = function(amount, event) {
     window.appState.xp += amount;
     
-    if (event) {
+    if (window.appState.xp < 0) {
+        if (window.appState.level > 1) {
+            window.appState.level -= 1; 
+            window.appState.xp += 100; 
+        } else {
+            window.appState.xp = 0; 
+        }
+    }
+    
+    if (event && amount > 0) {
         let x = 0, y = 0;
         if (event.pageX !== undefined && event.pageY !== undefined) {
             x = event.pageX; y = event.pageY;
@@ -169,9 +194,12 @@ window.updateXP = function(amount, event) {
     
     if (window.appState.xp >= 100) {
         window.appState.level += 1; window.appState.xp -= 100;
-        window.playSound('success');
+        if (amount > 0) window.playSound('success');
     }
-    window.triggerNewQuote(); applySavedTheme(); window.saveDataToStorage();
+    
+    window.triggerNewQuote(); 
+    applySavedTheme(); 
+    window.saveDataToStorage();
 };
 
 function showXPFloat(amount, x, y) {

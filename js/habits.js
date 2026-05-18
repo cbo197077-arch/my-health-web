@@ -17,10 +17,14 @@ function renderCalendar() {
         dayDiv.addEventListener('click', (e) => {
             e.stopPropagation();
             const index = completedDays.indexOf(i);
+            
             if (index === -1) {
-                completedDays.push(i); window.updateXP(15, e); window.playSound('success');
+                completedDays.push(i); 
+                window.updateXP(15, e); 
+                window.playSound('success');
             } else {
                 completedDays.splice(index, 1);
+                window.updateXP(-15, null); 
             }
             localStorage.setItem('healing_skincare_days', JSON.stringify(completedDays));
             renderCalendar();
@@ -30,7 +34,132 @@ function renderCalendar() {
 }
 renderCalendar();
 
-// --- XỬ LÝ NHẬT KÝ & HIỂN THỊ TRỰC QUAN THEO TỪNG NGÀY ---
+// QUẢN LÝ THÓI QUEN TỰ TẠO
+let customHabits = JSON.parse(localStorage.getItem('healing_custom_habits')) || [];
+
+function renderCustomHabits() {
+    const container = document.getElementById('custom-habits-container');
+    if (!container) return;
+    container.innerHTML = '';
+    
+    const now = new Date();
+    const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+    const today = now.getDate();
+
+    customHabits.forEach((habit, hIndex) => {
+        const isPinned = habit.isPinned || false;
+        const isExpanded = habit.isExpanded !== false; 
+
+        const card = document.createElement('div');
+        card.className = `bg-white/40 p-4 rounded-2xl border ${isPinned ? 'border-primary' : 'border-white/60'} shadow-sm relative flex flex-col transition-all duration-300`;
+        card.style.order = isPinned ? '-1' : '0';
+
+        card.innerHTML = `
+            <div class="flex justify-between items-center ${isExpanded ? 'mb-3 border-b border-white/40 pb-2' : ''} transition-all">
+                <div class="font-bold text-sm text-primary flex items-center gap-1.5">
+                    <button class="toggle-pin text-lg ${isPinned ? 'text-primary' : 'text-gray-400 hover:text-primary'} transition-colors" data-index="${hIndex}" title="Ghim lên đầu">
+                        <i class="${isPinned ? 'ph-fill' : 'ph'} ph-push-pin"></i>
+                    </button>
+                    ${habit.name}
+                </div>
+                <div class="flex items-center gap-1.5">
+                    <button class="text-gray-400 hover:text-primary toggle-expand transition-transform duration-300 ${isExpanded ? '' : 'rotate-180'}" data-index="${hIndex}" title="Thu gọn/Mở rộng">
+                        <i class="ph ph-caret-up text-lg"></i>
+                    </button>
+                    <button class="text-gray-400 hover:text-red-500 delete-custom-habit ml-1" data-index="${hIndex}" title="Xóa thói quen">
+                        <i class="ph ph-trash text-base"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="habit-body transition-all duration-300 ${isExpanded ? 'block' : 'hidden'}">
+                <div class="grid grid-cols-7 gap-2 text-center text-[10px] font-bold opacity-50 uppercase mb-2">
+                    <div>T2</div><div>T3</div><div>T4</div><div>T5</div><div>T6</div><div>T7</div><div>CN</div>
+                </div>
+                <div class="grid grid-cols-7 gap-y-5 gap-x-2 text-center" id="custom-grid-${hIndex}"></div>
+            </div>
+        `;
+        container.appendChild(card);
+
+        if (isExpanded) {
+            const grid = document.getElementById(`custom-grid-${hIndex}`);
+            for (let i = 1; i <= daysInMonth; i++) {
+                const dayDiv = document.createElement('div');
+                dayDiv.className = 'calendar-day !w-8 !h-8 text-xs'; 
+                if (i === today) dayDiv.classList.add('today');
+                if (habit.days.includes(i)) dayDiv.classList.add('completed');
+                dayDiv.innerText = i;
+
+                dayDiv.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const index = habit.days.indexOf(i);
+                    
+                    if (index === -1) {
+                        habit.days.push(i);
+                        window.updateXP(15, e);
+                        window.playSound('success');
+                    } else {
+                        habit.days.splice(index, 1);
+                        window.updateXP(-15, null);
+                    }
+                    localStorage.setItem('healing_custom_habits', JSON.stringify(customHabits));
+                    renderCustomHabits();
+                });
+                grid.appendChild(dayDiv);
+            }
+        }
+    });
+
+    document.querySelectorAll('.toggle-pin').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const idx = btn.getAttribute('data-index');
+            customHabits[idx].isPinned = !customHabits[idx].isPinned;
+            localStorage.setItem('healing_custom_habits', JSON.stringify(customHabits));
+            renderCustomHabits();
+        });
+    });
+
+    document.querySelectorAll('.toggle-expand').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const idx = btn.getAttribute('data-index');
+            customHabits[idx].isExpanded = customHabits[idx].isExpanded === false ? true : false;
+            localStorage.setItem('healing_custom_habits', JSON.stringify(customHabits));
+            renderCustomHabits();
+        });
+    });
+
+    document.querySelectorAll('.delete-custom-habit').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if(confirm('Bạn có chắc chắn muốn xóa thói quen này và toàn bộ lịch sử điểm danh của nó không?')) {
+                const idx = btn.getAttribute('data-index');
+                customHabits.splice(idx, 1);
+                localStorage.setItem('healing_custom_habits', JSON.stringify(customHabits));
+                renderCustomHabits();
+            }
+        });
+    });
+}
+
+const btnAddHabit = document.getElementById('btn-add-custom-habit');
+const inputHabit = document.getElementById('new-custom-habit-input');
+if (btnAddHabit) {
+    btnAddHabit.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const val = inputHabit.value.trim();
+        if (val) {
+            customHabits.push({ name: val, days: [], isPinned: false, isExpanded: true });
+            inputHabit.value = '';
+            localStorage.setItem('healing_custom_habits', JSON.stringify(customHabits));
+            renderCustomHabits();
+        }
+    });
+}
+renderCustomHabits();
+
+// --- NHẬT KÝ THEO NGÀY VÀ CƠ CHẾ GỌI AI CÚN ---
 let currentMood = localStorage.getItem('healing_current_mood') || '';
 const journalTextarea = document.getElementById('journal-text');
 const savedLabel = document.getElementById('journal-saved-time');
@@ -39,10 +168,10 @@ const journalHistoryList = document.getElementById('journal-history-list');
 let journalLogs = JSON.parse(localStorage.getItem('healing_journal_logs')) || [];
 
 const moodStyles = {
-    '🥰': { border: 'border-l-4 border-emerald-400 bg-emerald-500/5', label: 'Ngày Tràn Đầy Niềm Vui' },
-    '⚡': { border: 'border-l-4 border-amber-400 bg-amber-500/5', label: 'Ngày Nhiều Năng Lượng' },
-    '😴': { border: 'border-l-4 border-blue-400 bg-blue-500/5', label: 'Ngày Cần Được Nghỉ Ngơi' },
-    '😵': { border: 'border-l-4 border-rose-400 bg-rose-500/5', label: 'Ngày Có Chút Mệt Mỏi' }
+    '😊': { border: 'border-l-4 border-emerald-400 bg-emerald-500/5', label: 'Ngày Tràn Đầy Niềm Vui' },
+    '😭': { border: 'border-l-4 border-blue-400 bg-blue-500/5', label: 'Ngày Rơi Nước Mắt' },
+    '😡': { border: 'border-l-4 border-rose-500 bg-rose-500/5', label: 'Ngày Tức Giận' },
+    '😨': { border: 'border-l-4 border-purple-400 bg-purple-500/5', label: 'Ngày Sợ Hãi' }
 };
 
 function renderJournalLogs() {
@@ -116,10 +245,111 @@ if (document.getElementById('btn-save-journal')) {
         window.updateXP(10, e);
         renderJournalLogs();
         setTimeout(() => savedLabel.classList.add('hidden'), 2500);
+
+        // KÍCH HOẠT HIỂN THỊ POPUP ĐỘNG VIÊN
+        if (['😭', '😡', '😨'].includes(currentMood)) {
+            const healingPopup = document.getElementById('healing-popup');
+            if (healingPopup) {
+                healingPopup.classList.remove('hidden');
+                window.playSound('click'); 
+            }
+        }
     });
 }
 
-// THỂ DỤC ĐA CHỈ SỐ + HIỆU ỨNG CHÚC MỪNG SINH ĐỘNG
+// Bắt 2 Option Sự Kiện Trong Pop-up
+const btnCloseHealing = document.getElementById('btn-close-healing');
+if (btnCloseHealing) {
+    btnCloseHealing.addEventListener('click', () => {
+        document.getElementById('healing-popup').classList.add('hidden');
+    });
+}
+
+const btnChatCun = document.getElementById('btn-chat-cun');
+if (btnChatCun) {
+    btnChatCun.addEventListener('click', () => {
+        document.getElementById('healing-popup').classList.add('hidden');
+        const cunSection = document.getElementById('cun-chat-section');
+        if (cunSection) {
+            // Cuộn xuống chỗ Cún một cách mượt mà và focus vào ô nhập để chat luôn
+            cunSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            setTimeout(() => {
+                document.getElementById('cun-chat-input').focus();
+            }, 600);
+        }
+    });
+}
+
+// LÕI XỬ LÝ AI CÚN CORGI (RIÊNG BIỆT VỚI BUDDY)
+const cunChatBox = document.getElementById('cun-chat-box');
+const cunChatInput = document.getElementById('cun-chat-input');
+const btnSendCun = document.getElementById('btn-send-cun');
+
+async function askCunAI(message) {
+    const apiKey = window.appState.geminiKey;
+    if (!apiKey) return "Gâu gâu! 🐶 Cậu chưa dán Mã API Key trong phần Cài đặt kìa!";
+    
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                contents: [{ 
+                    parts: [{ 
+                        text: `Bạn là một chú chó Corgi tên Cún, vô cùng đáng yêu, trung thành và là một chuyên gia thấu hiểu tâm lý. Nhiệm vụ của bạn là an ủi, xoa dịu những nỗi buồn, sự tức giận hay sợ hãi của người dùng. Hãy trả lời cực kỳ đáng yêu, dỗ dành, súc tích (dưới 100 từ). Bắt buộc phải sử dụng các từ ngữ đặc trưng của cún như "gâu gâu", "ư ử", "vẫy đuôi", "liếm mặt" và nhiều emoji trái tim hoặc động vật. Tâm sự của người dùng: ${message}` 
+                    }] 
+                }] 
+            })
+        });
+        
+        const data = await response.json();
+        if (!response.ok) return `🐶 Ư ử... Lỗi hệ thống: ${data.error ? data.error.message : 'Key hỏng rồi cậu ơi.'}`;
+        
+        if (data.candidates && data.candidates[0].content.parts[0].text) {
+            return data.candidates[0].content.parts[0].text;
+        }
+        return "🐶 Cún không nghe rõ cậu nói gì...";
+    } catch (e) { 
+        return `🐶 Gâu gâu! Mạng nhà mình rớt rồi cậu ơi!`; 
+    }
+}
+
+async function handleSendCun() {
+    if (!cunChatBox) return;
+    const text = cunChatInput.value.trim(); if (!text) return;
+    cunChatInput.value = '';
+    
+    // Giao diện gõ của bạn
+    cunChatBox.innerHTML += `<div class="bg-amber-500 text-white p-2 rounded-2xl max-w-[85%] ml-auto text-xs border shadow-sm">${text}</div>`;
+    cunChatBox.scrollTop = cunChatBox.scrollHeight;
+
+    // Cún đang load
+    const loadingId = 'cun-loading-' + Date.now();
+    cunChatBox.innerHTML += `<div id="${loadingId}" class="bg-amber-100 p-2 rounded-2xl max-w-[85%] text-xs italic text-amber-700 animate-pulse border border-amber-200 shadow-sm">Cún đang vểnh tai nghe... 🐶</div>`;
+    cunChatBox.scrollTop = cunChatBox.scrollHeight;
+
+    // Nhận câu trả lời
+    const aiResponse = await askCunAI(text);
+    const loadingEl = document.getElementById(loadingId);
+    if (loadingEl) loadingEl.remove();
+    
+    const formattedResponse = aiResponse.replace(/\n/g, '<br>');
+    cunChatBox.innerHTML += `<div class="bg-white/90 p-2.5 rounded-2xl max-w-[85%] text-xs font-medium border border-amber-200 shadow-inner text-amber-900 leading-relaxed">${formattedResponse}</div>`;
+    cunChatBox.scrollTop = cunChatBox.scrollHeight;
+    
+    // Tặng thêm 5 XP mỗi lần tương tác với Cún
+    window.updateXP(5);
+}
+
+if (btnSendCun) {
+    btnSendCun.addEventListener('click', (e) => { e.stopPropagation(); handleSendCun(); });
+}
+if (cunChatInput) {
+    cunChatInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') { e.stopPropagation(); handleSendCun(); } });
+}
+
+// THỂ DỤC ĐA CHỈ SỐ 
 const fitnessList = document.getElementById('fitness-list');
 const btnAddFit = document.getElementById('btn-add-fit');
 const inputFit = document.getElementById('custom-fit-input');
@@ -170,7 +400,10 @@ function renderFitness() {
                     popMsg.innerText = `Tuyệt vời ông mặt trời! Bạn đã hoàn thành xuất sắc bài tập: "${fitnessRoutines[idx].name}" 🏃‍♂️💨`;
                     popup.classList.remove('hidden');
                 }
+            } else {
+                window.updateXP(-20, null);
             }
+            
             localStorage.setItem('healing_fitness_routines', JSON.stringify(fitnessRoutines));
         });
     });
@@ -203,9 +436,7 @@ if (btnAddFit) {
     });
 }
 
-// =========================================================================
-// --- TÍNH NĂNG THỨ 6: SỔ TAY GHI CHÚ CHỮA LÀNH (ĐƯỢC THÊM MỚI ĐỘC LẬP) ---
-// =========================================================================
+// SỔ TAY GHI CHÚ CHỮA LÀNH
 const notesTextarea = document.getElementById('note-text');
 const btnSaveNote = document.getElementById('btn-save-note');
 const notesHistoryList = document.getElementById('notes-history-list');
@@ -219,7 +450,6 @@ function renderNotes() {
         return;
     }
     
-    // Đảo ngược mảng để note mới viết hiển thị lên đầu tiên của danh sách lịch sử
     [...savedNotes].reverse().forEach((note, index) => {
         const actualIndex = savedNotes.length - 1 - index;
         const div = document.createElement('div');
@@ -258,19 +488,16 @@ if (btnSaveNote) {
         const now = new Date();
         const timeStr = now.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) + ' - ' + now.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' });
 
-        savedNotes.push({
-            text: textVal,
-            date: timeStr
-        });
+        savedNotes.push({ text: textVal, date: timeStr });
 
         localStorage.setItem('healing_notes', JSON.stringify(savedNotes));
-        notesTextarea.value = ''; // Xoá sạch khung nhập sau khi lưu
-        window.updateXP(5, e); // Thưởng nhẹ 5 XP khuyến khích ghi chép chuyên cần
+        notesTextarea.value = ''; 
+        window.updateXP(5, e); 
         renderNotes();
     });
 }
 
-// Khởi chạy đồng bộ tất cả danh sách khi tải ứng dụng
+// Khởi chạy đồng bộ
 renderFitness();
 renderJournalLogs();
-renderNotes(); // Khởi chạy danh sách ghi chú
+renderNotes();
