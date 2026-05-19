@@ -25,7 +25,7 @@ window.playSound = function(type) {
 const savedState = JSON.parse(localStorage.getItem('healing_app_state'));
 window.appState = savedState || {
     level: 1, xp: 0, username: "Người lữ hành", avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=200",
-    soundEnabled: true, glassEnabled: true, themeColor: '#799488', textColor: '#2d3748', titleColor: '#ffffff',
+    soundEnabled: true, glassEnabled: true, themeColor: '#799488', textColor: '#2d3748',
     titleFont: "'Nunito', sans-serif", fontMain: "'Nunito', sans-serif", blurAmount: '16px', bgBlurAmount: '0px',
     bgUrl: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1000&auto=format&fit=crop',
     geminiKey: '',
@@ -41,7 +41,7 @@ window.saveDataToStorage = function() { localStorage.setItem('healing_app_state'
 // ==========================================
 const dict = {
     vi: {
-        main_title: "KHÔNG GIAN TINH THẦN", healing_quote_title: "Lời nhắn chữa lành",
+        main_title: "KHÔNG GIAN<br>TINH THẦN <i class='ph-fill ph-leaf text-emerald-400 text-xl drop-shadow-none'></i>", healing_quote_title: "Lời nhắn chữa lành",
         skincare: "Lịch Skincare", fitness: "Lịch Thể Dục", custom_habit: "Thói Quen Tự Tạo",
         journal_title: "Viết Nhật Ký Cảm Xúc", emotion_history: "Tiến trình cảm xúc", save_journal: "Lưu tâm sự",
         cun_chat_title: "Trạm Tâm Sự Cùng Cún", cun_intro: "Gâu gâu! 🐶 Mình là Cún Corgi đây. Cậu đang có tâm sự gì à, kể Cún nghe đi! ❤️",
@@ -59,7 +59,7 @@ const dict = {
         enter_pin: "Nhập mã PIN để mở khóa", zodiac_prompt: "Để nhận thông điệp, vũ trụ cần biết chòm sao của bạn:", connect_universe: "Kết nối Vũ Trụ ✨"
     },
     en: {
-        main_title: "SPIRITUAL SPACE", healing_quote_title: "Healing Quote",
+        main_title: "SPIRITUAL<br>SPACE <i class='ph-fill ph-leaf text-emerald-400 text-xl drop-shadow-none'></i>", healing_quote_title: "Healing Quote",
         skincare: "Skincare Routine", fitness: "Fitness Tracker", custom_habit: "Custom Habits",
         journal_title: "Emotional Journal", emotion_history: "Emotion Timeline", save_journal: "Save Entry",
         cun_chat_title: "Corgi Chat Station", cun_intro: "Woof woof! 🐶 I'm Corgi. Are you having a heavy heart? Tell me everything! ❤️",
@@ -82,7 +82,7 @@ function applyLanguage() {
     const lang = window.appState.language || 'vi';
     document.querySelectorAll('[data-i18n]').forEach(el => {
         const key = el.getAttribute('data-i18n');
-        if (dict[lang][key]) el.innerText = dict[lang][key];
+        if (dict[lang][key]) el.innerHTML = dict[lang][key];
     });
 }
 const btnLang = document.getElementById('btn-toggle-lang');
@@ -90,6 +90,27 @@ if (btnLang) {
     btnLang.addEventListener('click', () => {
         window.appState.language = window.appState.language === 'vi' ? 'en' : 'vi';
         window.saveDataToStorage(); applyLanguage(); window.playSound('click'); window.triggerNewQuote();
+    });
+}
+
+// ==========================================
+// ĐỔI AVATAR NGƯỜI DÙNG
+// ==========================================
+const avatarInput = document.getElementById('avatar-input');
+const avatarContainer = document.getElementById('avatar-container');
+if (avatarContainer && avatarInput) {
+    avatarContainer.addEventListener('click', () => avatarInput.click());
+    avatarInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                window.appState.avatar = evt.target.result;
+                document.getElementById('user-avatar').src = evt.target.result;
+                window.saveDataToStorage();
+            };
+            reader.readAsDataURL(file);
+        }
     });
 }
 
@@ -143,7 +164,6 @@ function initLockScreen() {
     const lockScreen = document.getElementById('journal-lock-screen');
     const contentArea = document.getElementById('journal-content-area');
     
-    // Nếu có PIN thì bật màn hình khóa, ẩn nội dung
     if (window.appState.journalPin) {
         lockScreen.classList.remove('hidden'); contentArea.classList.add('opacity-0', 'pointer-events-none');
         buildKeypad();
@@ -282,7 +302,7 @@ async function fetchCosmicMessage() {
     } catch (e) { contentBox.innerHTML = "Lỗi kết nối từ trái đất..."; }
 }
 
-// --- CÁC HÀM GỐC GIỮ NGUYÊN ---
+// --- CÁC HÀM GỐC ---
 function applyBackground(url) {
     const videoEl = document.getElementById('bg-video');
     if (videoEl) {
@@ -313,7 +333,7 @@ function applySavedTheme() {
     applyLanguage();
     
     const mainTitleEl = document.getElementById('main-title-text');
-    if (mainTitleEl) { mainTitleEl.style.color = window.appState.titleColor || '#ffffff'; mainTitleEl.style.fontFamily = window.appState.titleFont || window.appState.fontMain; }
+    if (mainTitleEl) { mainTitleEl.style.fontFamily = window.appState.titleFont || window.appState.fontMain; }
     
     if (document.getElementById('username-input')) document.getElementById('username-input').value = window.appState.username;
     if (document.getElementById('user-avatar')) document.getElementById('user-avatar').src = window.appState.avatar;
@@ -323,6 +343,11 @@ function applySavedTheme() {
     if (document.getElementById('user-level')) document.getElementById('user-level').innerText = window.appState.level;
     if (document.getElementById('user-xp')) document.getElementById('user-xp').innerText = window.appState.xp;
     if (document.getElementById('xp-bar')) document.getElementById('xp-bar').style.width = `${window.appState.xp}%`;
+
+    if(document.getElementById('bg-blur-val')) document.getElementById('bg-blur-val').innerText = window.appState.bgBlurAmount || '0px';
+    if(document.getElementById('range-bg-blur')) document.getElementById('range-bg-blur').value = parseInt(window.appState.bgBlurAmount) || 0;
+    const overlay = document.getElementById('bg-blur-overlay'); 
+    if(overlay) overlay.style.backdropFilter = `blur(${window.appState.bgBlurAmount || '0px'})`;
 }
 
 window.updateXP = function(amount, event) {
@@ -339,8 +364,12 @@ window.updateXP = function(amount, event) {
     }
     if (window.appState.xp >= 100) { window.appState.level += 1; window.appState.xp -= 100; if (amount > 0) window.playSound('success'); }
     
-    window.triggerNewQuote(); // Refresh lại lời nhắn mỗi khi cộng điểm
-    applySavedTheme(); window.saveDataToStorage();
+    if (document.getElementById('user-level')) document.getElementById('user-level').innerText = window.appState.level;
+    if (document.getElementById('user-xp')) document.getElementById('user-xp').innerText = window.appState.xp;
+    if (document.getElementById('xp-bar')) document.getElementById('xp-bar').style.width = `${window.appState.xp}%`;
+
+    window.triggerNewQuote(); 
+    window.saveDataToStorage();
 };
 
 if (document.getElementById('realtime-clock')) {
@@ -356,12 +385,19 @@ document.querySelectorAll('.nav-btn').forEach(btn => {
         if(e.currentTarget.getAttribute('data-target') === 'tab-journal') initLockScreen();
         
         document.querySelectorAll('.nav-btn').forEach(b => { b.classList.remove('active'); });
-        document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
+        document.querySelectorAll('.tab-content').forEach(tab => {
+            tab.classList.add('hidden');
+            tab.classList.remove('animate-fade-smooth');
+        });
+        
         e.currentTarget.classList.add('active');
         const target = document.getElementById(e.currentTarget.getAttribute('data-target'));
-        if (target) target.classList.remove('hidden');
+        if (target) {
+            target.classList.remove('hidden');
+            void target.offsetWidth; 
+            target.classList.add('animate-fade-smooth');
+        }
     });
 });
 
-// KHỞI CHẠY QUOTE VÀ NGÔN NGỮ KHI TẢI TRANG
 setTimeout(() => { applySavedTheme(); window.triggerNewQuote(); }, 150);

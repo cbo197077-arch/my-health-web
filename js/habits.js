@@ -1,11 +1,30 @@
 const calGrid = document.getElementById('calendar-grid');
 let completedDays = JSON.parse(localStorage.getItem('healing_skincare_days')) || [];
 
+// Map các thành phần UI
+const streakCounter = document.getElementById('streak-counter');
+const completionPercent = document.getElementById('completion-percent');
+const completionFraction = document.getElementById('completion-fraction');
+const monthDisplay = document.getElementById('current-month-display');
+const skincareNotes = document.getElementById('skincare-notes');
+
+// Tính năng 1: Khôi phục và lưu tự động Ghi chú sản phẩm
+if (skincareNotes) {
+    skincareNotes.value = localStorage.getItem('healing_skincare_notes') || '';
+    skincareNotes.addEventListener('input', (e) => {
+        localStorage.setItem('healing_skincare_notes', e.target.value);
+    });
+}
+
 function renderCalendar() {
+    if (!calGrid) return;
     calGrid.innerHTML = '';
     const now = new Date();
-    const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+    const currentMonth = now.getMonth() + 1;
+    const daysInMonth = new Date(now.getFullYear(), currentMonth, 0).getDate();
     const today = now.getDate();
+
+    if (monthDisplay) monthDisplay.innerText = `Tháng ${currentMonth}`;
 
     for (let i = 1; i <= daysInMonth; i++) {
         const dayDiv = document.createElement('div');
@@ -20,21 +39,51 @@ function renderCalendar() {
             
             if (index === -1) {
                 completedDays.push(i); 
-                window.updateXP(15, e); 
-                window.playSound('success');
+                if (window.updateXP) window.updateXP(15, e); 
+                if (window.playSound) window.playSound('success');
             } else {
                 completedDays.splice(index, 1);
-                window.updateXP(-15, null); 
+                if (window.updateXP) window.updateXP(-15, null); 
             }
             localStorage.setItem('healing_skincare_days', JSON.stringify(completedDays));
             renderCalendar();
         });
         calGrid.appendChild(dayDiv);
     }
+
+    // Tính năng 2: Tính chuỗi ngày liên tiếp (Streak)
+    let streak = 0;
+    let checkDay = completedDays.includes(today) ? today : today - 1;
+    
+    while (checkDay > 0 && completedDays.includes(checkDay)) {
+        streak++;
+        checkDay--;
+    }
+    
+    if (streakCounter) {
+        streakCounter.innerHTML = `<i class="ph-fill ph-fire text-orange-400"></i> ${streak} ngày liên tiếp`;
+        if (streak >= 3) {
+            streakCounter.classList.replace('text-orange-500', 'text-red-500');
+            streakCounter.classList.replace('bg-orange-50', 'bg-red-50');
+        } else {
+            streakCounter.classList.replace('text-red-500', 'text-orange-500');
+            streakCounter.classList.replace('bg-red-50', 'bg-orange-50');
+        }
+    }
+
+    // Tính năng 3: Tính % hoàn thành
+    const completedCount = completedDays.length;
+    const percent = Math.round((completedCount / daysInMonth) * 100) || 0;
+    
+    if (completionPercent) completionPercent.innerText = `${percent}%`;
+    if (completionFraction) completionFraction.innerText = `${completedCount}/${daysInMonth} ngày`;
 }
+
 renderCalendar();
 
-// QUẢN LÝ THÓI QUEN TỰ TẠO
+// ==========================================
+// THÓI QUEN TỰ TẠO (Đã được update logic y hệt Skincare)
+// ==========================================
 let customHabits = JSON.parse(localStorage.getItem('healing_custom_habits')) || [];
 
 function renderCustomHabits() {
@@ -50,33 +99,59 @@ function renderCustomHabits() {
         const isPinned = habit.isPinned || false;
         const isExpanded = habit.isExpanded !== false; 
 
+        // Đoạn này đo Streak cho từng thói quen tự tạo
+        let streak = 0;
+        let checkDay = habit.days.includes(today) ? today : today - 1;
+        while (checkDay > 0 && habit.days.includes(checkDay)) { streak++; checkDay--; }
+
+        // Tính phần trăm hoàn thành
+        const percent = Math.round((habit.days.length / daysInMonth) * 100) || 0;
+
         const card = document.createElement('div');
-        card.className = `bg-white/40 p-4 rounded-2xl border ${isPinned ? 'border-primary' : 'border-white/60'} shadow-sm relative flex flex-col transition-all duration-300`;
+        card.className = `bg-white/40 p-5 rounded-[20px] border ${isPinned ? 'border-indigo-400 shadow-md' : 'border-white/60 shadow-sm'} relative flex flex-col transition-all duration-300`;
         card.style.order = isPinned ? '-1' : '0';
 
         card.innerHTML = `
-            <div class="flex justify-between items-center ${isExpanded ? 'mb-3 border-b border-white/40 pb-2' : ''} transition-all">
-                <div class="font-bold text-sm text-primary flex items-center gap-1.5">
-                    <button class="toggle-pin text-lg ${isPinned ? 'text-primary' : 'text-gray-400 hover:text-primary'} transition-colors" data-index="${hIndex}" title="Ghim lên đầu">
+            <div class="flex justify-between items-center mb-3">
+                <div class="font-bold text-[15px] text-slate-800 uppercase flex items-center gap-1.5">
+                    <button class="toggle-pin text-lg ${isPinned ? 'text-indigo-500' : 'text-gray-400 hover:text-indigo-500'} transition-colors" data-index="${hIndex}" title="Ghim">
                         <i class="${isPinned ? 'ph-fill' : 'ph'} ph-push-pin"></i>
                     </button>
                     ${habit.name}
                 </div>
-                <div class="flex items-center gap-1.5">
-                    <button class="text-gray-400 hover:text-primary toggle-expand transition-transform duration-300 ${isExpanded ? '' : 'rotate-180'}" data-index="${hIndex}" title="Thu gọn/Mở rộng">
+                <div class="flex items-center gap-2">
+                    <span class="text-[10px] font-bold text-orange-500 bg-orange-50 px-2 py-0.5 rounded-full flex items-center gap-1 border border-orange-100">
+                        <i class="ph-fill ph-fire text-orange-400"></i> ${streak}
+                    </span>
+                    <button class="text-gray-400 hover:text-indigo-500 toggle-expand transition-transform duration-300 ${isExpanded ? '' : 'rotate-180'}" data-index="${hIndex}">
                         <i class="ph ph-caret-up text-lg"></i>
                     </button>
-                    <button class="text-gray-400 hover:text-red-500 delete-custom-habit ml-1" data-index="${hIndex}" title="Xóa thói quen">
+                    <button class="text-gray-400 hover:text-red-500 delete-custom-habit ml-0.5" data-index="${hIndex}">
                         <i class="ph ph-trash text-base"></i>
                     </button>
                 </div>
             </div>
             
             <div class="habit-body transition-all duration-300 ${isExpanded ? 'block' : 'hidden'}">
-                <div class="grid grid-cols-7 gap-2 text-center text-[10px] font-bold opacity-50 uppercase mb-2">
-                    <div>T2</div><div>T3</div><div>T4</div><div>T5</div><div>T6</div><div>T7</div><div>CN</div>
+                <div class="flex gap-4 relative z-20">
+                    <div class="flex-1">
+                        <div class="grid grid-cols-7 gap-1 text-center text-[11px] font-semibold text-gray-500 mb-3">
+                            <div>T2</div><div>T3</div><div>T4</div><div>T5</div><div>T6</div><div>T7</div><div>CN</div>
+                        </div>
+                        <div class="grid grid-cols-7 gap-y-5 gap-x-1 text-center relative z-20" id="custom-grid-${hIndex}"></div>
+                    </div>
+                    
+                    <div class="w-[110px] shrink-0 bg-white/50 border border-white rounded-[20px] p-3 shadow-[inset_0_2px_10px_rgba(255,255,255,1)] flex flex-col justify-center">
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="text-xs font-bold text-slate-700">Tháng ${now.getMonth() + 1}</span>
+                            <i class="ph-fill ph-leaf text-emerald-400 text-base"></i>
+                        </div>
+                        <div class="flex items-center gap-2 bg-white/60 p-1.5 rounded-xl border border-white">
+                            <div class="w-[34px] h-[34px] rounded-full border-[3px] border-emerald-400 flex items-center justify-center text-[9px] font-bold text-emerald-600 shrink-0">${percent}%</div>
+                            <div class="text-[8px] text-gray-500 font-medium leading-tight">Hoàn thành<br><span class="text-[10px] font-bold text-slate-700 block">${habit.days.length}/${daysInMonth}</span></div>
+                        </div>
+                    </div>
                 </div>
-                <div class="grid grid-cols-7 gap-y-5 gap-x-2 text-center" id="custom-grid-${hIndex}"></div>
             </div>
         `;
         container.appendChild(card);
@@ -96,14 +171,15 @@ function renderCustomHabits() {
                     
                     if (index === -1) {
                         habit.days.push(i);
-                        window.updateXP(15, e);
-                        window.playSound('success');
+                        if(window.updateXP) window.updateXP(15, e);
+                        if(window.playSound) window.playSound('success');
                     } else {
                         habit.days.splice(index, 1);
-                        window.updateXP(-15, null);
+                        if(window.updateXP) window.updateXP(-15, null);
                     }
                     localStorage.setItem('healing_custom_habits', JSON.stringify(customHabits));
-                    renderCustomHabits();
+                    // Thay vì chạy lại cả logic, chỉ cần gọi lại hàm renderCustomHabits
+                    renderCustomHabits(); 
                 });
                 grid.appendChild(dayDiv);
             }
@@ -159,7 +235,9 @@ if (btnAddHabit) {
 }
 renderCustomHabits();
 
-// --- NHẬT KÝ THEO NGÀY VÀ CƠ CHẾ GỌI AI CÚN ---
+// ==========================================
+// NHẬT KÝ THEO NGÀY VÀ CƠ CHẾ GỌI AI CÚN
+// ==========================================
 let currentMood = localStorage.getItem('healing_current_mood') || '';
 const journalTextarea = document.getElementById('journal-text');
 const savedLabel = document.getElementById('journal-saved-time');
@@ -242,22 +320,20 @@ if (document.getElementById('btn-save-journal')) {
         localStorage.setItem('healing_journal_logs', JSON.stringify(journalLogs));
         journalTextarea.value = '';
         savedLabel.classList.remove('hidden');
-        window.updateXP(10, e);
+        if(window.updateXP) window.updateXP(10, e);
         renderJournalLogs();
         setTimeout(() => savedLabel.classList.add('hidden'), 2500);
 
-        // KÍCH HOẠT HIỂN THỊ POPUP ĐỘNG VIÊN
         if (['😭', '😡', '😨'].includes(currentMood)) {
             const healingPopup = document.getElementById('healing-popup');
             if (healingPopup) {
                 healingPopup.classList.remove('hidden');
-                window.playSound('click'); 
+                if(window.playSound) window.playSound('click'); 
             }
         }
     });
 }
 
-// Bắt 2 Option Sự Kiện Trong Pop-up
 const btnCloseHealing = document.getElementById('btn-close-healing');
 if (btnCloseHealing) {
     btnCloseHealing.addEventListener('click', () => {
@@ -271,22 +347,18 @@ if (btnChatCun) {
         document.getElementById('healing-popup').classList.add('hidden');
         const cunSection = document.getElementById('cun-chat-section');
         if (cunSection) {
-            // Cuộn xuống chỗ Cún một cách mượt mà và focus vào ô nhập để chat luôn
             cunSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            setTimeout(() => {
-                document.getElementById('cun-chat-input').focus();
-            }, 600);
+            setTimeout(() => { document.getElementById('cun-chat-input').focus(); }, 600);
         }
     });
 }
 
-// LÕI XỬ LÝ AI CÚN CORGI (RIÊNG BIỆT VỚI BUDDY)
 const cunChatBox = document.getElementById('cun-chat-box');
 const cunChatInput = document.getElementById('cun-chat-input');
 const btnSendCun = document.getElementById('btn-send-cun');
 
 async function askCunAI(message) {
-    const apiKey = window.appState.geminiKey;
+    const apiKey = window.appState ? window.appState.geminiKey : '';
     if (!apiKey) return "Gâu gâu! 🐶 Cậu chưa dán Mã API Key trong phần Cài đặt kìa!";
     
     const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
@@ -297,7 +369,7 @@ async function askCunAI(message) {
             body: JSON.stringify({ 
                 contents: [{ 
                     parts: [{ 
-                        text: `Bạn là một chú chó Corgi tên Cún, vô cùng đáng yêu, trung thành và là một chuyên gia thấu hiểu tâm lý. Nhiệm vụ của bạn là an ủi, xoa dịu những nỗi buồn, sự tức giận hay sợ hãi của người dùng. Hãy trả lời cực kỳ đáng yêu, dỗ dành, súc tích (dưới 100 từ). Bắt buộc phải sử dụng các từ ngữ đặc trưng của cún như "gâu gâu", "ư ử", "vẫy đuôi", "liếm mặt" và nhiều emoji trái tim hoặc động vật. Tâm sự của người dùng: ${message}` 
+                        text: `Bạn là một chú chó Corgi tên Cún, chuyên gia thấu hiểu tâm lý. Hãy trả lời cực kỳ đáng yêu, dỗ dành, súc tích (dưới 100 từ). Dùng các từ như "gâu gâu", "ư ử", "vẫy đuôi", "liếm mặt" và emoji. Tâm sự: ${message}` 
                     }] 
                 }] 
             })
@@ -305,10 +377,8 @@ async function askCunAI(message) {
         
         const data = await response.json();
         if (!response.ok) return `🐶 Ư ử... Lỗi hệ thống: ${data.error ? data.error.message : 'Key hỏng rồi cậu ơi.'}`;
+        if (data.candidates && data.candidates[0].content.parts[0].text) return data.candidates[0].content.parts[0].text;
         
-        if (data.candidates && data.candidates[0].content.parts[0].text) {
-            return data.candidates[0].content.parts[0].text;
-        }
         return "🐶 Cún không nghe rõ cậu nói gì...";
     } catch (e) { 
         return `🐶 Gâu gâu! Mạng nhà mình rớt rồi cậu ơi!`; 
@@ -320,16 +390,13 @@ async function handleSendCun() {
     const text = cunChatInput.value.trim(); if (!text) return;
     cunChatInput.value = '';
     
-    // Giao diện gõ của bạn
     cunChatBox.innerHTML += `<div class="bg-amber-500 text-white p-2 rounded-2xl max-w-[85%] ml-auto text-xs border shadow-sm">${text}</div>`;
     cunChatBox.scrollTop = cunChatBox.scrollHeight;
 
-    // Cún đang load
     const loadingId = 'cun-loading-' + Date.now();
     cunChatBox.innerHTML += `<div id="${loadingId}" class="bg-amber-100 p-2 rounded-2xl max-w-[85%] text-xs italic text-amber-700 animate-pulse border border-amber-200 shadow-sm">Cún đang vểnh tai nghe... 🐶</div>`;
     cunChatBox.scrollTop = cunChatBox.scrollHeight;
 
-    // Nhận câu trả lời
     const aiResponse = await askCunAI(text);
     const loadingEl = document.getElementById(loadingId);
     if (loadingEl) loadingEl.remove();
@@ -338,18 +405,15 @@ async function handleSendCun() {
     cunChatBox.innerHTML += `<div class="bg-white/90 p-2.5 rounded-2xl max-w-[85%] text-xs font-medium border border-amber-200 shadow-inner text-amber-900 leading-relaxed">${formattedResponse}</div>`;
     cunChatBox.scrollTop = cunChatBox.scrollHeight;
     
-    // Tặng thêm 5 XP mỗi lần tương tác với Cún
-    window.updateXP(5);
+    if(window.updateXP) window.updateXP(5);
 }
 
-if (btnSendCun) {
-    btnSendCun.addEventListener('click', (e) => { e.stopPropagation(); handleSendCun(); });
-}
-if (cunChatInput) {
-    cunChatInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') { e.stopPropagation(); handleSendCun(); } });
-}
+if (btnSendCun) { btnSendCun.addEventListener('click', (e) => { e.stopPropagation(); handleSendCun(); }); }
+if (cunChatInput) { cunChatInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') { e.stopPropagation(); handleSendCun(); } }); }
 
-// THỂ DỤC ĐA CHỈ SỐ 
+// ==========================================
+// THỂ DỤC ĐA CHỈ SỐ
+// ==========================================
 const fitnessList = document.getElementById('fitness-list');
 const btnAddFit = document.getElementById('btn-add-fit');
 const inputFit = document.getElementById('custom-fit-input');
@@ -391,8 +455,8 @@ function renderFitness() {
             fitnessRoutines[idx].done = e.target.checked;
             
             if (e.target.checked) {
-                window.updateXP(20, e);
-                window.playSound('success');
+                if(window.updateXP) window.updateXP(20, e);
+                if(window.playSound) window.playSound('success');
                 
                 const popMsg = document.getElementById('celebration-msg');
                 const popup = document.getElementById('celebration-popup');
@@ -401,9 +465,8 @@ function renderFitness() {
                     popup.classList.remove('hidden');
                 }
             } else {
-                window.updateXP(-20, null);
+                if(window.updateXP) window.updateXP(-20, null);
             }
-            
             localStorage.setItem('healing_fitness_routines', JSON.stringify(fitnessRoutines));
         });
     });
@@ -436,7 +499,9 @@ if (btnAddFit) {
     });
 }
 
+// ==========================================
 // SỔ TAY GHI CHÚ CHỮA LÀNH
+// ==========================================
 const notesTextarea = document.getElementById('note-text');
 const btnSaveNote = document.getElementById('btn-save-note');
 const notesHistoryList = document.getElementById('notes-history-list');
@@ -492,12 +557,11 @@ if (btnSaveNote) {
 
         localStorage.setItem('healing_notes', JSON.stringify(savedNotes));
         notesTextarea.value = ''; 
-        window.updateXP(5, e); 
+        if(window.updateXP) window.updateXP(5, e); 
         renderNotes();
     });
 }
 
-// Khởi chạy đồng bộ
 renderFitness();
 renderJournalLogs();
 renderNotes();
