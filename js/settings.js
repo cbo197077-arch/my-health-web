@@ -1,4 +1,3 @@
-// CÀI ĐẶT HIỆU ỨNG KÍNH MỜ (GLASS)
 const toggleGlass = document.getElementById('toggle-glass');
 if (toggleGlass) {
     toggleGlass.addEventListener('change', (e) => {
@@ -17,7 +16,6 @@ if (toggleGlass) {
     });
 }
 
-// THANH KÉO ĐỘ MỜ KÍNH
 const rangeBlur = document.getElementById('range-blur');
 if (rangeBlur) {
     rangeBlur.addEventListener('input', (e) => {
@@ -35,7 +33,6 @@ if (rangeBlur) {
     });
 }
 
-// THANH KÉO ĐỘ MỜ NỀN
 const rangeBgBlur = document.getElementById('range-bg-blur');
 if (rangeBgBlur) {
     rangeBgBlur.addEventListener('input', (e) => {
@@ -48,7 +45,24 @@ if (rangeBgBlur) {
     });
 }
 
-// ĐỔI FONT CHỮ HỆ THỐNG
+// CÀI ĐẶT MÃ PIN (Mang ra không gian chung để dễ lấy sự kiện Click)
+const btnSavePin = document.getElementById('btn-save-pin');
+const pinSetup = document.getElementById('pin-setup-input');
+if (pinSetup) pinSetup.value = window.appState.journalPin || '';
+
+if (btnSavePin) {
+    btnSavePin.addEventListener('click', () => {
+        const newPin = pinSetup.value.trim();
+        if (newPin.length !== 4 && newPin.length !== 0) { 
+            alert("Mã PIN phải có đúng 4 số!"); 
+            return; 
+        }
+        window.appState.journalPin = newPin; 
+        window.saveDataToStorage();
+        alert("Đã lưu cài đặt mã khóa Nhật ký thành công!");
+    });
+}
+
 const btnApplyFont = document.getElementById('btn-apply-font');
 if (btnApplyFont) {
     btnApplyFont.addEventListener('click', (e) => {
@@ -65,7 +79,6 @@ if (btnApplyFont) {
     });
 }
 
-// ĐỔI MÀU CHỮ TIÊU ĐỀ
 const titleColor = document.getElementById('title-color');
 if (titleColor) {
     titleColor.addEventListener('input', (e) => {
@@ -76,7 +89,6 @@ if (titleColor) {
     });
 }
 
-// ĐỔI FONT CHỮ TIÊU ĐỀ CHÍNH
 const btnApplyTitleFont = document.getElementById('btn-apply-title-font');
 if (btnApplyTitleFont) {
     btnApplyTitleFont.addEventListener('click', (e) => {
@@ -96,7 +108,6 @@ if (btnApplyTitleFont) {
     });
 }
 
-// ĐỔI MÀU CHỦ ĐẠO
 const themeColor = document.getElementById('theme-color');
 if (themeColor) {
     themeColor.addEventListener('input', (e) => {
@@ -106,7 +117,6 @@ if (themeColor) {
     });
 }
 
-// ĐỔI MÀU CHỮ WEB
 const textColor = document.getElementById('text-color');
 if (textColor) {
     textColor.addEventListener('input', (e) => {
@@ -116,7 +126,6 @@ if (textColor) {
     });
 }
 
-// THAY ĐỔI HÌNH NỀN
 const btnApplyBg = document.getElementById('btn-apply-bg');
 if (btnApplyBg) {
     btnApplyBg.addEventListener('click', (e) => {
@@ -137,7 +146,6 @@ if (btnApplyBg) {
     });
 }
 
-// LƯU API KEY GEMINI
 const geminiKeyInput = document.getElementById('gemini-key-input');
 if (geminiKeyInput) {
     geminiKeyInput.addEventListener('input', (e) => {
@@ -145,7 +153,6 @@ if (geminiKeyInput) {
     });
 }
 
-// BẬT/TẮT ÂM THANH
 const toggleSound = document.getElementById('toggle-sound');
 if (toggleSound) {
     toggleSound.addEventListener('change', (e) => {
@@ -153,15 +160,14 @@ if (toggleSound) {
     });
 }
 
-// RESET APP (ĐÃ SỬA LỖI & THÊM CẢNH BÁO RÕ RÀNG HƠN)
 const btnResetApp = document.getElementById('btn-reset-app');
 if (btnResetApp) {
     btnResetApp.addEventListener('click', (e) => {
-        e.preventDefault(); // Tránh hành vi nổi bọt hoặc submit ngầm
+        e.preventDefault(); 
         if (confirm("⚠️ BẠN CÓ CHẮC CHẮN MUỐN XÓA TOÀN BỘ DỮ LIỆU?\n\nTất cả thói quen, nhật ký, ghi chú, mục tiêu tiết kiệm và cài đặt sẽ bị xóa sạch khỏi trình duyệt này.\n\nHành động này KHÔNG THỂ HOÀN TÁC!")) {
             localStorage.clear();
             alert("Đã xóa sạch dữ liệu. Web sẽ tải lại ngay bây giờ!");
-            window.location.replace(window.location.pathname); // Ép trình duyệt tải lại một trang hoàn toàn mới, loại bỏ cache
+            window.location.replace(window.location.pathname); 
         }
     });
 }

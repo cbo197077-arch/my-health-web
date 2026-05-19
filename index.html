@@ -51,7 +51,7 @@
             <div id="zodiac-setup" class="mt-5">
                 <p class="text-[13px] font-medium text-gray-600 mb-4" data-i18n="zodiac_prompt">Để nhận thông điệp, vũ trụ cần biết chòm sao của bạn:</p>
                 <select id="zodiac-select" class="w-full p-3.5 rounded-2xl bg-indigo-50/60 border border-indigo-100 text-[15px] font-semibold text-gray-700 outline-none focus:border-indigo-400 mb-4 appearance-none cursor-pointer shadow-inner">
-                    <option value="" disabled selected>Chọn cung hoàng đạo...</option>
+                    <option value="" disabled selected data-i18n="zodiac_select">Chọn cung hoàng đạo...</option>
                     <option value="Bạch Dương">♈ Bạch Dương (Aries)</option>
                     <option value="Kim Ngưu">♉ Kim Ngưu (Taurus)</option>
                     <option value="Song Tử">♊ Song Tử (Gemini)</option>
@@ -90,7 +90,7 @@
                     <h1 id="main-title-text" class="text-[28px] leading-[1.15] font-serif text-indigo-700 drop-shadow-sm mb-2 font-extrabold tracking-tight" style="font-family: 'Times New Roman', serif;" data-i18n="main_title">
                         KHÔNG GIAN<br>TINH THẦN <i class="ph-fill ph-leaf text-emerald-400 text-xl drop-shadow-none"></i>
                     </h1>
-                    <p class="text-[10px] text-gray-500 font-medium mb-3 leading-relaxed">Chăm sóc tâm trí • Nuôi dưỡng cảm xúc<br>Sống tích cực mỗi ngày</p>
+                    <p class="text-[10px] text-gray-500 font-medium mb-3 leading-relaxed" data-i18n="sub_title">Chăm sóc tâm trí • Nuôi dưỡng cảm xúc<br>Sống tích cực mỗi ngày</p>
                     
                     <div class="flex items-center gap-2 mb-4">
                         <p id="realtime-clock" class="text-[10px] font-bold text-slate-600 bg-white/70 px-3 py-1 rounded-full shadow-sm flex items-center gap-1">
@@ -107,13 +107,13 @@
                 </div>
                 
                 <div class="flex flex-col items-center w-[90px] shrink-0">
-                    <div class="text-[10px] text-gray-500 font-medium w-full text-left">Xin chào,</div>
+                    <div class="text-[10px] text-gray-500 font-medium w-full text-left" data-i18n="hello">Xin chào,</div>
                     <input type="text" id="username-input" value="Người lữ hành" class="bg-transparent font-bold text-sm outline-none text-slate-800 w-full text-left truncate mb-2">
                     
                     <div class="relative group cursor-pointer mb-3 mt-1" id="avatar-container">
                         <div class="absolute inset-[-4px] bg-gradient-to-tr from-cyan-300 via-purple-300 to-pink-300 rounded-full blur-[4px] opacity-70"></div>
                         <img id="user-avatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=200" class="w-16 h-16 rounded-full object-cover border-[2.5px] border-white relative z-10 shadow-md">
-                        <div class="absolute inset-0 z-20 bg-black/40 rounded-full flex items-center justify-center text-white text-[9px] font-bold opacity-0 group-hover:opacity-100 transition-opacity">ĐỔI</div>
+                        <div class="absolute inset-0 z-20 bg-black/40 rounded-full flex items-center justify-center text-white text-[9px] font-bold opacity-0 group-hover:opacity-100 transition-opacity" data-i18n="change_btn">ĐỔI</div>
                         <input type="file" id="avatar-input" accept="image/*" class="hidden">
                     </div>
                     
@@ -135,8 +135,8 @@
             </div>
             
             <div class="flex-1 relative z-10">
-                <h4 class="text-[10px] font-bold uppercase tracking-widest text-[#3d9981] mb-1.5 flex items-center gap-1" data-i18n="healing_quote_title">
-                    LỜI NHẮN CHỮA LÀNH <i class="ph-fill ph-leaf text-[#62bca4]"></i>
+                <h4 class="text-[10px] font-bold uppercase tracking-widest text-[#3d9981] mb-1.5 flex items-center gap-1">
+                    <span data-i18n="healing_quote_title">LỜI NHẮN CHỮA LÀNH</span> <i class="ph-fill ph-leaf text-[#62bca4]"></i>
                 </h4>
                 <p id="healing-quote" class="text-[11px] font-bold text-slate-700 italic leading-relaxed" style="font-family: 'Times New Roman', serif;"></p>
             </div>
@@ -146,14 +146,8 @@
             <section id="tab-habits" class="tab-content active space-y-5">
                 
                 <div class="glass-card p-5 relative overflow-visible">
-                    <div class="flex justify-between items-start mb-5 relative z-20">
-                        <div class="flex gap-3 items-center">
-                            <i class="ph-light ph-drop text-[36px] text-indigo-500"></i>
-                            <div>
-                                <h2 class="font-bold text-[15px] text-slate-800 tracking-wider uppercase" data-i18n="skincare">LỊCH SKINCARE</h2>
-                                <p class="text-[10px] text-gray-500 font-medium mt-0.5">Yêu thương làn da mỗi ngày ✨</p>
-                            </div>
-                        </div>
+                    <div class="flex justify-between items-start mb-4 relative z-20">
+                        <h2 class="font-bold text-lg flex items-center gap-2 text-slate-800"><i class="ph-light ph-drop text-indigo-500 text-2xl"></i> <span data-i18n="skincare">Lịch Skincare</span></h2>
                         <div class="flex flex-col items-end gap-2">
                             <span id="streak-counter" class="text-[10px] font-bold text-orange-500 bg-orange-50 px-2.5 py-1 rounded-full flex items-center gap-1 border border-orange-100 shadow-sm transition-all">
                                 <i class="ph-fill ph-fire text-orange-400"></i> 0 ngày liên tiếp
@@ -164,7 +158,7 @@
                     <div class="flex gap-4 relative z-20">
                         <div class="flex-1">
                             <div class="grid grid-cols-7 gap-1 text-center text-[11px] font-semibold text-gray-500 mb-3">
-                                <div>T2</div><div>T3</div><div>T4</div><div>T5</div><div>T6</div><div>T7</div><div>CN</div>
+                                <div data-i18n="mon">T2</div><div data-i18n="tue">T3</div><div data-i18n="wed">T4</div><div data-i18n="thu">T5</div><div data-i18n="fri">T6</div><div data-i18n="sat">T7</div><div data-i18n="sun">CN</div>
                             </div>
                             <div id="calendar-grid" class="grid grid-cols-7 gap-y-5 gap-x-1 text-center relative z-20"></div>
                         </div>
@@ -176,11 +170,11 @@
                             </div>
                             <div class="flex items-center gap-2 mb-3 bg-white/60 p-1.5 rounded-xl border border-white">
                                 <div id="completion-percent" class="w-[38px] h-[38px] rounded-full border-[3px] border-emerald-400 flex items-center justify-center text-[10px] font-bold text-emerald-600 shrink-0 transition-all">0%</div>
-                                <div class="text-[9px] text-gray-500 font-medium leading-tight">Hoàn thành<br><span id="completion-fraction" class="text-[11px] font-bold text-slate-700 block">0/0 ngày</span></div>
+                                <div class="text-[9px] text-gray-500 font-medium leading-tight"><span data-i18n="completed">Hoàn thành</span><br><span id="completion-fraction" class="text-[11px] font-bold text-slate-700 block">0/0 ngày</span></div>
                             </div>
                             <div class="text-[9px] flex-1 flex flex-col">
-                                <div class="font-bold text-gray-400 mb-1">Ghi chú sản phẩm</div>
-                                <textarea id="skincare-notes" placeholder="Toner, Serum..." class="w-full flex-1 p-2 bg-white/40 border border-white/60 rounded-xl resize-none text-[10px] text-slate-600 focus:outline-none focus:border-indigo-300 shadow-inner font-semibold leading-relaxed" rows="4"></textarea>
+                                <div class="font-bold text-gray-400 mb-1" data-i18n="product_notes">Ghi chú sản phẩm</div>
+                                <textarea id="skincare-notes" data-i18n-placeholder="skincare_placeholder" placeholder="Toner, Serum..." class="w-full flex-1 p-2 bg-white/40 border border-white/60 rounded-xl resize-none text-[10px] text-slate-600 focus:outline-none focus:border-indigo-300 shadow-inner font-semibold leading-relaxed" rows="4"></textarea>
                             </div>
                         </div>
                     </div>
@@ -192,10 +186,10 @@
                         <span class="text-[11px] font-bold text-slate-600 bg-white/80 px-2 py-0.5 rounded-md shadow-sm border border-white"><i class="ph ph-clock"></i> 20:00</span>
                     </div>
                     <div class="space-y-2 mb-4 bg-white/30 p-3 rounded-2xl border border-white/80">
-                        <input type="text" id="custom-fit-input" placeholder="Tên bài tập..." class="w-full p-2.5 rounded-xl glass-input text-sm font-semibold">
+                        <input type="text" id="custom-fit-input" data-i18n-placeholder="fit_name_placeholder" placeholder="Tên bài tập..." class="w-full p-2.5 rounded-xl glass-input text-sm font-semibold">
                         <div class="flex gap-2">
-                            <input type="number" id="fit-reps-input" placeholder="Số cái" class="w-1/2 p-2 rounded-xl glass-input text-xs font-semibold">
-                            <input type="number" id="fit-mins-input" placeholder="Số phút" class="w-1/2 p-2 rounded-xl glass-input text-xs font-semibold">
+                            <input type="number" id="fit-reps-input" data-i18n-placeholder="fit_reps_placeholder" placeholder="Số cái" class="w-1/2 p-2 rounded-xl glass-input text-xs font-semibold">
+                            <input type="number" id="fit-mins-input" data-i18n-placeholder="fit_mins_placeholder" placeholder="Số phút" class="w-1/2 p-2 rounded-xl glass-input text-xs font-semibold">
                             <input type="button" id="btn-add-fit" value="+" class="bg-indigo-400 text-white px-5 rounded-xl font-bold shadow-md cursor-pointer hover:bg-indigo-500">
                         </div>
                     </div>
@@ -207,7 +201,7 @@
                         <h2 class="font-bold text-lg flex items-center gap-2 text-slate-800"><i class="ph ph-calendar-plus text-indigo-500 text-2xl"></i> <span data-i18n="custom_habit">Thói Quen Tự Tạo</span></h2>
                     </div>
                     <div class="flex gap-2 mb-4 bg-white/30 p-2.5 rounded-2xl border border-white/80">
-                        <input type="text" id="new-custom-habit-input" placeholder="Nhập thói quen mới..." class="flex-1 p-2 rounded-xl glass-input text-sm font-semibold">
+                        <input type="text" id="new-custom-habit-input" data-i18n-placeholder="habit_placeholder" placeholder="Nhập thói quen mới..." class="flex-1 p-2 rounded-xl glass-input text-sm font-semibold">
                         <button id="btn-add-custom-habit" class="bg-indigo-400 text-white px-5 rounded-xl font-bold shadow-md hover:brightness-110">+</button>
                     </div>
                     <div id="custom-habits-container" class="flex flex-col gap-4"></div>
@@ -234,7 +228,7 @@
                         <button class="mood-btn text-2xl p-2 rounded-xl bg-white/60 border border-white hover:bg-white transition-all flex-1 shadow-sm" data-mood="😡">😡</button>
                         <button class="mood-btn text-2xl p-2 rounded-xl bg-white/60 border border-white hover:bg-white transition-all flex-1 shadow-sm" data-mood="😨">😨</button>
                     </div>
-                    <textarea id="journal-text" rows="3" placeholder="Tâm sự vào đây nhé..." class="w-full p-3 text-sm font-medium rounded-xl glass-input resize-none text-slate-700"></textarea>
+                    <textarea id="journal-text" data-i18n-placeholder="journal_placeholder" rows="3" placeholder="Tâm sự vào đây nhé..." class="w-full p-3 text-sm font-medium rounded-xl glass-input resize-none text-slate-700"></textarea>
                     <div class="flex justify-between items-center">
                         <span id="journal-saved-time" class="text-[10px] font-bold text-emerald-600 hidden">✓ Đã lưu</span>
                         <button id="btn-save-journal" class="bg-indigo-400 hover:bg-indigo-500 text-white text-xs font-bold px-5 py-2.5 rounded-xl ml-auto shadow-md transition-colors" data-i18n="save_journal">Lưu tâm sự</button>
@@ -283,11 +277,11 @@
                 <div class="glass-card p-4">
                     <h3 class="text-xs font-bold mb-3 flex items-center gap-1 uppercase tracking-wide text-slate-700"><i class="ph ph-heartbeat text-rose-400 text-lg"></i> <span data-i18n="health_stats">Chỉ số cơ thể</span></h3>
                     <div class="grid grid-cols-2 gap-2 mb-2">
-                        <input type="number" id="health-height" placeholder="Cao (cm)" class="p-2.5 text-xs rounded-xl glass-input bg-white/60">
-                        <input type="number" id="health-weight" placeholder="Nặng (kg)" class="p-2.5 text-xs rounded-xl glass-input bg-white/60">
+                        <input type="number" id="health-height" data-i18n-placeholder="health_height" placeholder="Cao (cm)" class="p-2.5 text-xs rounded-xl glass-input bg-white/60">
+                        <input type="number" id="health-weight" data-i18n-placeholder="health_weight" placeholder="Nặng (kg)" class="p-2.5 text-xs rounded-xl glass-input bg-white/60">
                     </div>
-                    <input type="text" id="health-status" placeholder="Trạng thái sức khỏe..." class="w-full mb-2 p-2.5 text-xs rounded-xl glass-input bg-white/60">
-                    <input type="text" id="health-skin" placeholder="Tình trạng da..." class="w-full mb-3 p-2.5 text-xs rounded-xl glass-input bg-white/60">
+                    <input type="text" id="health-status" data-i18n-placeholder="health_status" placeholder="Trạng thái sức khỏe..." class="w-full mb-2 p-2.5 text-xs rounded-xl glass-input bg-white/60">
+                    <input type="text" id="health-skin" data-i18n-placeholder="health_skin" placeholder="Tình trạng da..." class="w-full mb-3 p-2.5 text-xs rounded-xl glass-input bg-white/60">
                     <button id="btn-generate-routine" class="w-full bg-indigo-400 hover:bg-indigo-500 text-white font-bold py-2.5 rounded-xl text-xs shadow-md transition-colors" data-i18n="gen_routine">✨ Phân Tích Routine</button>
                 </div>
 
@@ -328,9 +322,9 @@
                 <div class="glass-card p-5">
                     <h2 id="savings-form-title" class="font-bold text-lg mb-4 flex items-center gap-2 text-slate-800"><i class="ph ph-piggy-bank text-indigo-500 text-2xl"></i> <span data-i18n="savings">Mục Tiêu</span></h2>
                     <input type="hidden" id="edit-goal-index" value="-1">
-                    <input type="text" id="goal-name" placeholder="Tên sản phẩm..." class="w-full mb-3 p-3 rounded-xl glass-input text-sm font-semibold bg-white/60">
-                    <input type="number" id="goal-target" placeholder="Số tiền..." class="w-full mb-3 p-3 rounded-xl glass-input text-sm font-semibold bg-white/60">
-                    <input type="text" id="goal-img" placeholder="Link ảnh..." class="w-full mb-4 p-3 rounded-xl glass-input text-sm bg-white/60">
+                    <input type="text" id="goal-name" data-i18n-placeholder="savings_name" placeholder="Tên sản phẩm..." class="w-full mb-3 p-3 rounded-xl glass-input text-sm font-semibold bg-white/60">
+                    <input type="number" id="goal-target" data-i18n-placeholder="savings_target" placeholder="Số tiền..." class="w-full mb-3 p-3 rounded-xl glass-input text-sm font-semibold bg-white/60">
+                    <input type="text" id="goal-img" data-i18n-placeholder="savings_link" placeholder="Link ảnh..." class="w-full mb-4 p-3 rounded-xl glass-input text-sm bg-white/60">
                     <div class="flex gap-2">
                         <button id="btn-add-goal" class="flex-1 bg-indigo-400 hover:bg-indigo-500 transition-colors text-white font-bold p-3 rounded-xl shadow-md" data-i18n="start_tracking">Bắt Đầu Theo Dõi</button>
                         <button id="btn-cancel-edit" class="bg-gray-400 hover:bg-gray-500 transition-colors text-white font-bold p-3 rounded-xl shadow-md hidden" data-i18n="cancel">Hủy</button>
@@ -344,34 +338,34 @@
                     <h2 class="font-bold text-lg flex items-center gap-2 border-b border-black/5 pb-2 text-slate-800"><i class="ph ph-sliders text-indigo-500 text-2xl"></i> <span data-i18n="settings_title">Cài Đặt Studio</span></h2>
                     
                     <div class="border-b border-black/5 pb-4 space-y-3">
-                        <span class="text-xs font-bold block uppercase text-slate-500"><i class="ph-fill ph-shield-check text-indigo-400"></i> Dữ liệu & Bảo mật</span>
+                        <span class="text-xs font-bold block uppercase text-slate-500"><i class="ph-fill ph-shield-check text-indigo-400"></i> <span data-i18n="data_security">Dữ liệu & Bảo mật</span></span>
                         <div class="flex items-center justify-between">
-                            <span class="text-sm font-bold text-slate-700">Khóa Nhật Ký (PIN)</span>
+                            <span class="text-sm font-bold text-slate-700" data-i18n="pin_lock">Khóa Nhật Ký (PIN)</span>
                             <div class="flex gap-1">
                                 <input type="password" id="pin-setup-input" maxlength="4" placeholder="1234" class="w-20 p-2 rounded-lg glass-input text-xs font-mono text-center tracking-widest bg-white/60">
-                                <button id="btn-save-pin" class="bg-indigo-400 text-white px-2 py-1 rounded-lg text-[10px] font-bold shadow">Lưu</button>
+                                <button id="btn-save-pin" class="bg-indigo-400 text-white px-2 py-1 rounded-lg text-[10px] font-bold shadow" data-i18n="save_btn">Lưu</button>
                             </div>
                         </div>
                         
                         <div class="flex gap-2 mt-2">
-                            <button id="btn-export-data" class="flex-1 bg-emerald-500/90 hover:bg-emerald-500 text-white py-2.5 rounded-xl text-xs font-bold shadow-sm transition-colors flex justify-center items-center gap-1"><i class="ph ph-download-simple"></i> Tải bản sao lưu</button>
-                            <button id="btn-import-data-trigger" class="flex-1 bg-blue-500/90 hover:bg-blue-500 text-white py-2.5 rounded-xl text-xs font-bold shadow-sm transition-colors flex justify-center items-center gap-1"><i class="ph ph-upload-simple"></i> Khôi phục dữ liệu</button>
+                            <button id="btn-export-data" class="flex-1 bg-emerald-500/90 hover:bg-emerald-500 text-white py-2.5 rounded-xl text-xs font-bold shadow-sm transition-colors flex justify-center items-center gap-1"><i class="ph ph-download-simple"></i> <span data-i18n="export_btn">Tải bản sao lưu</span></button>
+                            <button id="btn-import-data-trigger" class="flex-1 bg-blue-500/90 hover:bg-blue-500 text-white py-2.5 rounded-xl text-xs font-bold shadow-sm transition-colors flex justify-center items-center gap-1"><i class="ph ph-upload-simple"></i> <span data-i18n="import_btn">Khôi phục dữ liệu</span></button>
                             <input type="file" id="import-data-file" accept=".json" class="hidden">
                         </div>
                     </div>
 
                     <div>
-                        <label class="block text-sm font-bold mb-1 text-slate-700">Mã kết nối Gemini API Key</label>
-                        <input type="password" id="gemini-key-input" placeholder="Dán API Key..." class="w-full p-3 rounded-xl glass-input text-xs font-mono bg-white/60">
+                        <label class="block text-sm font-bold mb-1 text-slate-700" data-i18n="gemini_key">Mã kết nối Gemini API Key</label>
+                        <input type="password" id="gemini-key-input" data-i18n-placeholder="api_placeholder" placeholder="Dán API Key..." class="w-full p-3 rounded-xl glass-input text-xs font-mono bg-white/60">
                     </div>
 
                     <div>
-                        <div class="flex justify-between text-sm font-bold mb-1 text-slate-700"><span>Độ mờ kính</span><span id="blur-val">24px</span></div>
+                        <div class="flex justify-between text-sm font-bold mb-1 text-slate-700"><span data-i18n="glass_blur">Độ mờ kính</span><span id="blur-val">24px</span></div>
                         <input type="range" id="range-blur" min="0" max="40" value="24" class="w-full accent-indigo-400 cursor-pointer">
                     </div>
 
                     <div>
-                        <div class="flex justify-between text-sm font-bold mb-1 text-slate-700 mt-3"><span>Độ mờ nền (Background)</span><span id="bg-blur-val">0px</span></div>
+                        <div class="flex justify-between text-sm font-bold mb-1 text-slate-700 mt-3"><span data-i18n="bg_blur">Độ mờ nền (Background)</span><span id="bg-blur-val">0px</span></div>
                         <input type="range" id="range-bg-blur" min="0" max="40" value="0" class="w-full accent-indigo-400 cursor-pointer">
                     </div>
 
@@ -382,21 +376,21 @@
                     </div>
 
                     <div class="border-t border-black/5 pt-3 space-y-3">
-                        <label class="block text-sm font-bold mb-1 text-slate-700">Hình nền (URL ảnh/video)</label>
+                        <label class="block text-sm font-bold mb-1 text-slate-700" data-i18n="bg_url">Hình nền (URL ảnh/video)</label>
                         <div class="flex gap-2">
                             <input type="text" id="custom-bg-input" class="w-full p-2.5 rounded-xl glass-input text-sm bg-white/60">
-                            <button id="btn-apply-bg" class="bg-indigo-400 text-white px-4 rounded-xl font-bold text-sm shadow">Thay</button>
+                            <button id="btn-apply-bg" class="bg-indigo-400 text-white px-4 rounded-xl font-bold text-sm shadow" data-i18n="change_btn">Thay</button>
                         </div>
                     </div>
                     
                     <div class="flex items-center justify-between py-3 border-t border-black/5">
-                        <span class="text-sm font-bold text-slate-700">Hiệu ứng kính mờ (Glassmorphism)</span><input type="checkbox" id="toggle-glass" class="habit-checkbox w-6 h-6">
+                        <span class="text-sm font-bold text-slate-700" data-i18n="glass_effect">Hiệu ứng kính mờ (Glassmorphism)</span><input type="checkbox" id="toggle-glass" class="habit-checkbox w-6 h-6">
                     </div>
                     <div class="flex items-center justify-between py-3 border-t border-black/5">
-                        <span class="text-sm font-bold text-slate-700">Hiệu ứng âm thanh UI</span><input type="checkbox" id="toggle-sound" class="habit-checkbox w-6 h-6" checked>
+                        <span class="text-sm font-bold text-slate-700" data-i18n="sound_effect">Hiệu ứng âm thanh UI</span><input type="checkbox" id="toggle-sound" class="habit-checkbox w-6 h-6" checked>
                     </div>
                     <div class="pt-3 border-t border-red-200">
-                        <button id="btn-reset-app" class="w-full bg-red-50 hover:bg-red-500 text-red-500 hover:text-white font-bold p-3 rounded-xl text-xs transition-all border border-red-200">
+                        <button id="btn-reset-app" class="w-full bg-red-50 hover:bg-red-500 text-red-500 hover:text-white font-bold p-3 rounded-xl text-xs transition-all border border-red-200" data-i18n="reset_btn">
                             ⚠️ XÓA TOÀN BỘ DỮ LIỆU
                         </button>
                     </div>

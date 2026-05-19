@@ -11,19 +11,33 @@ const imgInput = document.getElementById('goal-img');
 let goals = JSON.parse(localStorage.getItem('healing_savings_goals')) || [];
 
 function renderGoals() {
+    const lang = window.appState.language || 'vi';
     if (!savingsList) return;
     savingsList.innerHTML = '';
+    
     goals.forEach((goal, index) => {
         const percent = Math.min(100, (goal.current / goal.target) * 100);
         const imageHTML = goal.img ? `<img src="${goal.img}" class="w-14 h-14 object-cover rounded-xl border-2 border-white shadow-sm" onerror="this.src='https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?q=80&w=150'">` : '';
         
         let historyHTML = '';
         if (goal.history && goal.history.length > 0) {
+            const histTitle = lang === 'en' ? 'Savings History:' : 'Lịch sử tích lũy:';
             historyHTML = `<div class="mt-2 text-[10px] text-gray-500 max-h-20 overflow-y-auto bg-black/5 p-2 rounded-lg">
-                <div class="font-bold mb-1">Lịch sử tích lũy:</div>
+                <div class="font-bold mb-1">${histTitle}</div>
                 ${goal.history.map(h => `<div>• +${h.amount.toLocaleString()}đ (${h.date})</div>`).reverse().join('')}
             </div>`;
         }
+        
+        // TÍNH TOÁN SỐ TIỀN CÒN LẠI VÀ CHUYỂN NGÔN NGỮ ĐỘNG
+        const remaining = goal.target - goal.current;
+        const remainingText = remaining > 0 
+            ? (lang === 'en' ? `Remaining: ${remaining.toLocaleString()}đ` : `Còn lại: ${remaining.toLocaleString()}đ`) 
+            : (lang === 'en' ? 'Completed!' : 'Đã hoàn thành!');
+            
+        const btnAddText = lang === 'en' ? 'Add' : 'Cộng';
+        const btnEditText = lang === 'en' ? 'Edit' : 'Sửa';
+        const btnDelText = lang === 'en' ? 'Del' : 'Xóa';
+        const placeholderText = lang === 'en' ? 'Add amount...' : 'Nhập số tiền...'; // <== ĐÃ SỬA CHỮ SOLO Ở ĐÂY
 
         const el = document.createElement('div');
         el.className = 'glass-card p-4 relative overflow-hidden';
@@ -35,17 +49,20 @@ function renderGoals() {
                         <div class="font-bold text-sm">${goal.name}</div>
                         <div class="text-xs text-primary font-black">${Math.round(percent)}%</div>
                     </div>
-                    <div class="text-[11px] font-bold opacity-70 mb-2">${goal.current.toLocaleString()}đ / ${goal.target.toLocaleString()}đ</div>
+                    <div class="text-[11px] font-bold opacity-70 mb-2">
+                        ${goal.current.toLocaleString()}đ / ${goal.target.toLocaleString()}đ
+                        <span class="text-rose-400 ml-1.5 font-black">(${remainingText})</span>
+                    </div>
                     <div class="w-full h-2 bg-black/5 rounded-full overflow-hidden shadow-inner">
                         <div class="h-full bg-primary rounded-full transition-all" style="width: ${percent}%"></div>
                     </div>
                 </div>
             </div>
             <div class="flex gap-1.5 mt-3 pt-2 border-t border-black/5">
-                <input type="number" id="add-amount-${index}" placeholder="Solo tiền..." class="flex-1 p-2 text-xs rounded-xl glass-input font-bold">
-                <button class="add-money bg-primary text-white text-xs font-bold px-2.5 py-1.5 rounded-xl shadow" data-index="${index}">Cộng</button>
-                <button class="edit-goal bg-amber-400 text-white text-xs font-bold px-2.5 py-1.5 rounded-xl shadow" data-index="${index}">Sửa</button>
-                <button class="delete-goal bg-red-400 text-white text-xs font-bold px-2.5 py-1.5 rounded-xl shadow" data-index="${index}">Xóa</button>
+                <input type="number" id="add-amount-${index}" placeholder="${placeholderText}" class="flex-1 p-2 text-xs rounded-xl glass-input font-bold">
+                <button class="add-money bg-primary text-white text-xs font-bold px-2.5 py-1.5 rounded-xl shadow" data-index="${index}">${btnAddText}</button>
+                <button class="edit-goal bg-amber-400 text-white text-xs font-bold px-2.5 py-1.5 rounded-xl shadow" data-index="${index}">${btnEditText}</button>
+                <button class="delete-goal bg-red-400 text-white text-xs font-bold px-2.5 py-1.5 rounded-xl shadow" data-index="${index}">${btnDelText}</button>
             </div>
             ${historyHTML}
         `;
@@ -147,9 +164,9 @@ if (closeCelebBtn) {
     });
 }
 
+window.renderGoals = renderGoals;
 renderGoals();
 
-// --- AI CHATBOX CONNECTOR (ĐÃ CHUẨN HÓA BỐ CỤC XUỐNG DÒNG) ---
 const aiChatBox = document.getElementById('ai-chat-box');
 const aiChatInput = document.getElementById('ai-chat-input');
 const btnSendAi = document.getElementById('btn-send-ai');

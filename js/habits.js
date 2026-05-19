@@ -1,19 +1,34 @@
 const calGrid = document.getElementById('calendar-grid');
 let completedDays = JSON.parse(localStorage.getItem('healing_skincare_days')) || [];
 
-// Map các thành phần UI
 const streakCounter = document.getElementById('streak-counter');
 const completionPercent = document.getElementById('completion-percent');
 const completionFraction = document.getElementById('completion-fraction');
 const monthDisplay = document.getElementById('current-month-display');
 const skincareNotes = document.getElementById('skincare-notes');
 
-// Tính năng 1: Khôi phục và lưu tự động Ghi chú sản phẩm
 if (skincareNotes) {
     skincareNotes.value = localStorage.getItem('healing_skincare_notes') || '';
     skincareNotes.addEventListener('input', (e) => {
         localStorage.setItem('healing_skincare_notes', e.target.value);
     });
+}
+
+// HÀM TÍNH TOÁN STREAK MỚI: Trả về chuỗi ngày liên tiếp dài nhất cực chuẩn
+function calculateStreak(daysArray) {
+    if (!daysArray || daysArray.length === 0) return 0;
+    let sortedDays = [...new Set(daysArray)].sort((a,b) => a-b);
+    let maxStreak = 1;
+    let currentStreak = 1;
+    for (let i = 1; i < sortedDays.length; i++) {
+        if (sortedDays[i] === sortedDays[i-1] + 1) {
+            currentStreak++;
+        } else {
+            maxStreak = Math.max(maxStreak, currentStreak);
+            currentStreak = 1;
+        }
+    }
+    return Math.max(maxStreak, currentStreak);
 }
 
 function renderCalendar() {
@@ -24,12 +39,17 @@ function renderCalendar() {
     const daysInMonth = new Date(now.getFullYear(), currentMonth, 0).getDate();
     const today = now.getDate();
 
-    if (monthDisplay) monthDisplay.innerText = `Tháng ${currentMonth}`;
+    const monthStr = window.appState.language === 'en' ? 'Month' : 'Tháng';
+    if (monthDisplay) monthDisplay.innerText = `${monthStr} ${currentMonth}`;
+    const todayStr = window.appState.language === 'en' ? 'Today' : 'Hôm nay';
 
     for (let i = 1; i <= daysInMonth; i++) {
         const dayDiv = document.createElement('div');
         dayDiv.className = 'calendar-day';
-        if (i === today) dayDiv.classList.add('today');
+        if (i === today) {
+            dayDiv.classList.add('today');
+            dayDiv.setAttribute('data-today', todayStr);
+        }
         if (completedDays.includes(i)) dayDiv.classList.add('completed');
         dayDiv.innerText = i;
 
@@ -51,17 +71,11 @@ function renderCalendar() {
         calGrid.appendChild(dayDiv);
     }
 
-    // Tính năng 2: Tính chuỗi ngày liên tiếp (Streak)
-    let streak = 0;
-    let checkDay = completedDays.includes(today) ? today : today - 1;
-    
-    while (checkDay > 0 && completedDays.includes(checkDay)) {
-        streak++;
-        checkDay--;
-    }
+    let streak = calculateStreak(completedDays);
+    const streakStr = window.appState.language === 'en' ? 'days streak' : 'ngày liên tiếp';
     
     if (streakCounter) {
-        streakCounter.innerHTML = `<i class="ph-fill ph-fire text-orange-400"></i> ${streak} ngày liên tiếp`;
+        streakCounter.innerHTML = `<i class="ph-fill ph-fire text-orange-400"></i> ${streak} ${streakStr}`;
         if (streak >= 3) {
             streakCounter.classList.replace('text-orange-500', 'text-red-500');
             streakCounter.classList.replace('bg-orange-50', 'bg-red-50');
@@ -71,19 +85,14 @@ function renderCalendar() {
         }
     }
 
-    // Tính năng 3: Tính % hoàn thành
     const completedCount = completedDays.length;
     const percent = Math.round((completedCount / daysInMonth) * 100) || 0;
     
+    const completedStr = window.appState.language === 'en' ? 'Completed' : 'Hoàn thành';
     if (completionPercent) completionPercent.innerText = `${percent}%`;
-    if (completionFraction) completionFraction.innerText = `${completedCount}/${daysInMonth} ngày`;
+    if (completionFraction) completionFraction.innerHTML = `<span data-i18n="completed">${completedStr}</span><br><span class="text-[11px] font-bold text-slate-700 block">${completedCount}/${daysInMonth}</span>`;
 }
 
-renderCalendar();
-
-// ==========================================
-// THÓI QUEN TỰ TẠO (Đã được update logic y hệt Skincare)
-// ==========================================
 let customHabits = JSON.parse(localStorage.getItem('healing_custom_habits')) || [];
 
 function renderCustomHabits() {
@@ -95,16 +104,25 @@ function renderCustomHabits() {
     const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
     const today = now.getDate();
 
+    const monthStr = window.appState.language === 'en' ? 'Month' : 'Tháng';
+    const todayStr = window.appState.language === 'en' ? 'Today' : 'Hôm nay';
+    const completedStr = window.appState.language === 'en' ? 'Completed' : 'Hoàn thành';
+    
+    // Dict dịch T2-CN
+    const dMon = window.appState.language === 'en' ? 'Mon' : 'T2';
+    const dTue = window.appState.language === 'en' ? 'Tue' : 'T3';
+    const dWed = window.appState.language === 'en' ? 'Wed' : 'T4';
+    const dThu = window.appState.language === 'en' ? 'Thu' : 'T5';
+    const dFri = window.appState.language === 'en' ? 'Fri' : 'T6';
+    const dSat = window.appState.language === 'en' ? 'Sat' : 'T7';
+    const dSun = window.appState.language === 'en' ? 'Sun' : 'CN';
+
     customHabits.forEach((habit, hIndex) => {
+        habit.days = habit.days || []; // Fallback tránh kẹt array rỗng gây đơ web
         const isPinned = habit.isPinned || false;
         const isExpanded = habit.isExpanded !== false; 
 
-        // Đoạn này đo Streak cho từng thói quen tự tạo
-        let streak = 0;
-        let checkDay = habit.days.includes(today) ? today : today - 1;
-        while (checkDay > 0 && habit.days.includes(checkDay)) { streak++; checkDay--; }
-
-        // Tính phần trăm hoàn thành
+        let streak = calculateStreak(habit.days);
         const percent = Math.round((habit.days.length / daysInMonth) * 100) || 0;
 
         const card = document.createElement('div');
@@ -136,19 +154,19 @@ function renderCustomHabits() {
                 <div class="flex gap-4 relative z-20">
                     <div class="flex-1">
                         <div class="grid grid-cols-7 gap-1 text-center text-[11px] font-semibold text-gray-500 mb-3">
-                            <div>T2</div><div>T3</div><div>T4</div><div>T5</div><div>T6</div><div>T7</div><div>CN</div>
+                            <div>${dMon}</div><div>${dTue}</div><div>${dWed}</div><div>${dThu}</div><div>${dFri}</div><div>${dSat}</div><div>${dSun}</div>
                         </div>
                         <div class="grid grid-cols-7 gap-y-5 gap-x-1 text-center relative z-20" id="custom-grid-${hIndex}"></div>
                     </div>
                     
                     <div class="w-[110px] shrink-0 bg-white/50 border border-white rounded-[20px] p-3 shadow-[inset_0_2px_10px_rgba(255,255,255,1)] flex flex-col justify-center">
                         <div class="flex justify-between items-center mb-3">
-                            <span class="text-xs font-bold text-slate-700">Tháng ${now.getMonth() + 1}</span>
+                            <span class="text-xs font-bold text-slate-700">${monthStr} ${now.getMonth() + 1}</span>
                             <i class="ph-fill ph-leaf text-emerald-400 text-base"></i>
                         </div>
                         <div class="flex items-center gap-2 bg-white/60 p-1.5 rounded-xl border border-white">
                             <div class="w-[34px] h-[34px] rounded-full border-[3px] border-emerald-400 flex items-center justify-center text-[9px] font-bold text-emerald-600 shrink-0">${percent}%</div>
-                            <div class="text-[8px] text-gray-500 font-medium leading-tight">Hoàn thành<br><span class="text-[10px] font-bold text-slate-700 block">${habit.days.length}/${daysInMonth}</span></div>
+                            <div class="text-[8px] text-gray-500 font-medium leading-tight">${completedStr}<br><span class="text-[10px] font-bold text-slate-700 block">${habit.days.length}/${daysInMonth}</span></div>
                         </div>
                     </div>
                 </div>
@@ -161,7 +179,10 @@ function renderCustomHabits() {
             for (let i = 1; i <= daysInMonth; i++) {
                 const dayDiv = document.createElement('div');
                 dayDiv.className = 'calendar-day !w-8 !h-8 text-xs'; 
-                if (i === today) dayDiv.classList.add('today');
+                if (i === today) {
+                    dayDiv.classList.add('today');
+                    dayDiv.setAttribute('data-today', todayStr);
+                }
                 if (habit.days.includes(i)) dayDiv.classList.add('completed');
                 dayDiv.innerText = i;
 
@@ -178,7 +199,6 @@ function renderCustomHabits() {
                         if(window.updateXP) window.updateXP(-15, null);
                     }
                     localStorage.setItem('healing_custom_habits', JSON.stringify(customHabits));
-                    // Thay vì chạy lại cả logic, chỉ cần gọi lại hàm renderCustomHabits
                     renderCustomHabits(); 
                 });
                 grid.appendChild(dayDiv);
@@ -233,11 +253,7 @@ if (btnAddHabit) {
         }
     });
 }
-renderCustomHabits();
 
-// ==========================================
-// NHẬT KÝ THEO NGÀY VÀ CƠ CHẾ GỌI AI CÚN
-// ==========================================
 let currentMood = localStorage.getItem('healing_current_mood') || '';
 const journalTextarea = document.getElementById('journal-text');
 const savedLabel = document.getElementById('journal-saved-time');
@@ -246,23 +262,29 @@ const journalHistoryList = document.getElementById('journal-history-list');
 let journalLogs = JSON.parse(localStorage.getItem('healing_journal_logs')) || [];
 
 const moodStyles = {
-    '😊': { border: 'border-l-4 border-emerald-400 bg-emerald-500/5', label: 'Ngày Tràn Đầy Niềm Vui' },
-    '😭': { border: 'border-l-4 border-blue-400 bg-blue-500/5', label: 'Ngày Rơi Nước Mắt' },
-    '😡': { border: 'border-l-4 border-rose-500 bg-rose-500/5', label: 'Ngày Tức Giận' },
-    '😨': { border: 'border-l-4 border-purple-400 bg-purple-500/5', label: 'Ngày Sợ Hãi' }
+    '😊': { border: 'border-l-4 border-emerald-400 bg-emerald-500/5', label_vi: 'Ngày Tràn Đầy Niềm Vui', label_en: 'Joyful Day' },
+    '😭': { border: 'border-l-4 border-blue-400 bg-blue-500/5', label_vi: 'Ngày Rơi Nước Mắt', label_en: 'Tearful Day' },
+    '😡': { border: 'border-l-4 border-rose-500 bg-rose-500/5', label_vi: 'Ngày Tức Giận', label_en: 'Angry Day' },
+    '😨': { border: 'border-l-4 border-purple-400 bg-purple-500/5', label_vi: 'Ngày Sợ Hãi', label_en: 'Fearful Day' }
 };
 
 function renderJournalLogs() {
+    const lang = window.appState.language || 'vi';
     if (!journalHistoryList) return;
     journalHistoryList.innerHTML = '';
+    
     if (journalLogs.length === 0) {
-        journalHistoryList.innerHTML = '<p class="text-[11px] italic opacity-50 text-center py-4">Ký ức tâm trạng hằng ngày đang trống...</p>';
+        const emptyStr = lang === 'en' ? 'Daily emotion memories are empty...' : 'Ký ức tâm trạng hằng ngày đang trống...';
+        journalHistoryList.innerHTML = `<p class="text-[11px] italic opacity-50 text-center py-4">${emptyStr}</p>`;
         return;
     }
     
+    const timeLabel = lang === 'en' ? 'Time' : 'Thời gian';
+
     [...journalLogs].reverse().forEach(log => {
         const div = document.createElement('div');
-        const style = moodStyles[log.mood] || { border: 'border-l-4 border-primary bg-white/20', label: 'Ký ức chữa lành' };
+        const style = moodStyles[log.mood] || { border: 'border-l-4 border-primary bg-white/20', label_vi: 'Ký ức chữa lành', label_en: 'Healing Memory' };
+        const labelStr = lang === 'en' ? style.label_en : style.label_vi;
         
         div.className = `glass-card p-3.5 flex gap-3.5 items-center ${style.border} transition-all duration-300 shadow-sm`;
         
@@ -272,14 +294,14 @@ function renderJournalLogs() {
         
         div.innerHTML = `
             <div class="bg-white/80 rounded-xl px-2 py-1 text-center min-w-[56px] shrink-0 font-bold border border-black/5 shadow-inner">
-                <div class="text-[7px] font-black opacity-40 uppercase tracking-widest">Thời gian</div>
+                <div class="text-[7px] font-black opacity-40 uppercase tracking-widest">${timeLabel}</div>
                 <div class="text-xs font-black text-gray-800">${dateStr}</div>
                 <div class="text-[8px] opacity-50 font-semibold">${time}</div>
             </div>
             <div class="flex-1 min-w-0">
                 <div class="flex items-center gap-1.5">
                     <span class="text-lg">${log.mood || '🌿'}</span>
-                    <span class="text-[10px] font-bold uppercase tracking-wider opacity-60">${style.label}</span>
+                    <span class="text-[10px] font-bold uppercase tracking-wider opacity-60">${labelStr}</span>
                 </div>
                 <div class="font-bold text-xs mt-1 leading-relaxed text-current break-words bg-white/10 p-2 rounded-lg border border-white/20 shadow-inner">
                     ${log.text}
@@ -411,9 +433,6 @@ async function handleSendCun() {
 if (btnSendCun) { btnSendCun.addEventListener('click', (e) => { e.stopPropagation(); handleSendCun(); }); }
 if (cunChatInput) { cunChatInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') { e.stopPropagation(); handleSendCun(); } }); }
 
-// ==========================================
-// THỂ DỤC ĐA CHỈ SỐ
-// ==========================================
 const fitnessList = document.getElementById('fitness-list');
 const btnAddFit = document.getElementById('btn-add-fit');
 const inputFit = document.getElementById('custom-fit-input');
@@ -422,12 +441,16 @@ const inputMins = document.getElementById('fit-mins-input');
 let fitnessRoutines = JSON.parse(localStorage.getItem('healing_fitness_routines')) || [];
 
 function renderFitness() {
+    const lang = window.appState.language || 'vi';
     if (!fitnessList) return;
     fitnessList.innerHTML = '';
+    
     if (fitnessRoutines.length === 0) {
-        fitnessList.innerHTML = '<p class="text-xs italic text-center py-2 opacity-60">Chưa có lịch tập, hãy thêm bài tập đa thông số ở trên nha.</p>';
+        const emptyStr = lang === 'en' ? 'No fitness routines, please add one above.' : 'Chưa có lịch tập, hãy thêm bài tập đa thông số ở trên nha.';
+        fitnessList.innerHTML = `<p class="text-xs italic text-center py-2 opacity-60">${emptyStr}</p>`;
         return;
     }
+    
     fitnessRoutines.forEach((fit, index) => {
         const div = document.createElement('div');
         div.className = 'flex justify-between items-center bg-white/40 p-3 rounded-xl border border-white/60 hover:bg-white/70 transition-colors';
@@ -499,19 +522,19 @@ if (btnAddFit) {
     });
 }
 
-// ==========================================
-// SỔ TAY GHI CHÚ CHỮA LÀNH
-// ==========================================
 const notesTextarea = document.getElementById('note-text');
 const btnSaveNote = document.getElementById('btn-save-note');
 const notesHistoryList = document.getElementById('notes-history-list');
 let savedNotes = JSON.parse(localStorage.getItem('healing_notes')) || [];
 
 function renderNotes() {
+    const lang = window.appState.language || 'vi';
     if (!notesHistoryList) return;
     notesHistoryList.innerHTML = '';
+    
     if (savedNotes.length === 0) {
-        notesHistoryList.innerHTML = '<p class="text-[11px] italic opacity-50 text-center py-4">Chưa có ghi chú nào được lưu giữ...</p>';
+        const emptyStr = lang === 'en' ? 'No notes saved yet...' : 'Chưa có ghi chú nào được lưu giữ...';
+        notesHistoryList.innerHTML = `<p class="text-[11px] italic opacity-50 text-center py-4">${emptyStr}</p>`;
         return;
     }
     
@@ -562,6 +585,15 @@ if (btnSaveNote) {
     });
 }
 
+// Gán biến ra toàn cục để app.js (hàm applyLanguage) có thể gọi lại và vẽ DOM theo ngôn ngữ
+window.renderCalendar = renderCalendar;
+window.renderCustomHabits = renderCustomHabits;
+window.renderFitness = renderFitness;
+window.renderJournalLogs = renderJournalLogs;
+window.renderNotes = renderNotes;
+
+renderCalendar();
+renderCustomHabits();
 renderFitness();
 renderJournalLogs();
 renderNotes();
