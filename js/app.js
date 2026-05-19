@@ -29,15 +29,15 @@ window.appState = savedState || {
     titleFont: "'Nunito', sans-serif", fontMain: "'Nunito', sans-serif", blurAmount: '16px', bgBlurAmount: '0px',
     bgUrl: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1000&auto=format&fit=crop',
     geminiKey: '',
-    journalPin: '', // MỚI: Mật khẩu nhật ký
-    language: 'vi', // MỚI: Ngôn ngữ mặc định
-    zodiac: ''      // MỚI: Lưu cung hoàng đạo
+    journalPin: '', 
+    language: 'vi', 
+    zodiac: ''      
 };
 
 window.saveDataToStorage = function() { localStorage.setItem('healing_app_state', JSON.stringify(window.appState)); };
 
 // ==========================================
-// TÍNH NĂNG MỚI: CHUYỂN ĐỔI NGÔN NGỮ (VI/EN)
+// TÍNH NĂNG ĐA NGÔN NGỮ (VI/EN)
 // ==========================================
 const dict = {
     vi: {
@@ -89,9 +89,38 @@ const btnLang = document.getElementById('btn-toggle-lang');
 if (btnLang) {
     btnLang.addEventListener('click', () => {
         window.appState.language = window.appState.language === 'vi' ? 'en' : 'vi';
-        window.saveDataToStorage(); applyLanguage(); window.playSound('click');
+        window.saveDataToStorage(); applyLanguage(); window.playSound('click'); window.triggerNewQuote();
     });
 }
+
+// ==========================================
+// TÍNH NĂNG MỚI: PHỤC HỒI LỜI NHẮN CHỮA LÀNH
+// ==========================================
+window.triggerNewQuote = function() {
+    const lang = window.appState.language || 'vi';
+    const quotes = {
+        vi: [
+            "Hành trình vạn dặm luôn bắt đầu từ một bước chân nhỏ. Bạn đang làm rất tốt!",
+            "Chậm một chút cũng không sao, miễn là bạn không dừng lại. Hãy ôm lấy bản thân nhé.",
+            "Mỗi thói quen nhỏ tích lũy hôm nay chính là một món quà tuyệt vời cho tương lai.",
+            "Bạn đang tiến bộ lên mỗi ngày, ngay cả những lúc bạn cảm thấy mệt mỏi nhất.",
+            "Hãy nuôi dưỡng tâm hồn và cơ thể thay vì áp lực. Bạn là một sự tồn tại quý giá."
+        ],
+        en: [
+            "A journey of a thousand miles begins with a single step. You are doing great!",
+            "It's okay to slow down, as long as you don't stop. Give yourself a hug.",
+            "Every small habit accumulated today is a wonderful gift for the future.",
+            "You are making progress every day, even when you feel the most tired.",
+            "Nourish your soul and body instead of pressuring them. You are precious."
+        ]
+    };
+    
+    const quoteEl = document.getElementById('healing-quote');
+    if (quoteEl) {
+        const list = quotes[lang] || quotes['vi'];
+        quoteEl.innerText = list[Math.floor(Math.random() * list.length)];
+    }
+};
 
 // ==========================================
 // TÍNH NĂNG MỚI: BẢO MẬT NHẬT KÝ BẰNG MÃ PIN
@@ -167,7 +196,6 @@ function updatePinDots() {
 const btnExport = document.getElementById('btn-export-data');
 if (btnExport) {
     btnExport.addEventListener('click', () => {
-        // Gom toàn bộ data trong localStorage
         const dataToExport = {};
         for (let i = 0; i < localStorage.length; i++) {
             const key = localStorage.key(i);
@@ -213,7 +241,6 @@ const btnSaveZodiac = document.getElementById('btn-save-zodiac');
 if (btnAstro) {
     btnAstro.addEventListener('click', () => {
         popupAstro.classList.remove('hidden');
-        // Nếu đã có cung hoàng đạo, bỏ qua màn chọn và gọi AI luôn
         if (window.appState.zodiac) {
             document.getElementById('zodiac-setup').classList.add('hidden');
             document.getElementById('zodiac-message-box').classList.remove('hidden');
@@ -283,7 +310,7 @@ function applySavedTheme() {
     }
     
     applyBackground(window.appState.bgUrl);
-    applyLanguage(); // Gọi đính kèm text đa ngôn ngữ
+    applyLanguage();
     
     const mainTitleEl = document.getElementById('main-title-text');
     if (mainTitleEl) { mainTitleEl.style.color = window.appState.titleColor || '#ffffff'; mainTitleEl.style.fontFamily = window.appState.titleFont || window.appState.fontMain; }
@@ -311,6 +338,8 @@ window.updateXP = function(amount, event) {
         }
     }
     if (window.appState.xp >= 100) { window.appState.level += 1; window.appState.xp -= 100; if (amount > 0) window.playSound('success'); }
+    
+    window.triggerNewQuote(); // Refresh lại lời nhắn mỗi khi cộng điểm
     applySavedTheme(); window.saveDataToStorage();
 };
 
@@ -324,7 +353,6 @@ if (document.getElementById('realtime-clock')) {
 document.body.addEventListener('click', () => window.playSound('click'));
 document.querySelectorAll('.nav-btn').forEach(btn => {
     btn.addEventListener('click', (e) => {
-        // Nếu chuyển sang tab Nhật ký, khởi động check Màn hình Khóa
         if(e.currentTarget.getAttribute('data-target') === 'tab-journal') initLockScreen();
         
         document.querySelectorAll('.nav-btn').forEach(b => { b.classList.remove('active'); });
@@ -335,4 +363,5 @@ document.querySelectorAll('.nav-btn').forEach(btn => {
     });
 });
 
-setTimeout(() => { applySavedTheme(); }, 150);
+// KHỞI CHẠY QUOTE VÀ NGÔN NGỮ KHI TẢI TRANG
+setTimeout(() => { applySavedTheme(); window.triggerNewQuote(); }, 150);
