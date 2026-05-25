@@ -14,7 +14,6 @@ if (skincareNotes) {
     });
 }
 
-// HÀM TÍNH TOÁN STREAK MỚI: Trả về chuỗi ngày liên tiếp dài nhất cực chuẩn
 function calculateStreak(daysArray) {
     if (!daysArray || daysArray.length === 0) return 0;
     let sortedDays = [...new Set(daysArray)].sort((a,b) => a-b);
@@ -36,8 +35,17 @@ function renderCalendar() {
     calGrid.innerHTML = '';
     const now = new Date();
     const currentMonth = now.getMonth() + 1;
-    const daysInMonth = new Date(now.getFullYear(), currentMonth, 0).getDate();
+    // SỬA LỖI Ở ĐÂY: Thêm + 1 vào getMonth() để đếm đúng số ngày của tháng hiện tại
+    const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
     const today = now.getDate();
+
+    // Thuật toán bù đắp thứ cho ngày đầu tháng
+    const firstDayIndex = new Date(now.getFullYear(), now.getMonth(), 1).getDay();
+    const blanks = firstDayIndex === 0 ? 6 : firstDayIndex - 1;
+    for (let i = 0; i < blanks; i++) {
+        const blankDiv = document.createElement('div');
+        calGrid.appendChild(blankDiv);
+    }
 
     const monthStr = window.appState.language === 'en' ? 'Month' : 'Tháng';
     if (monthDisplay) monthDisplay.innerText = `${monthStr} ${currentMonth}`;
@@ -59,11 +67,9 @@ function renderCalendar() {
             
             if (index === -1) {
                 completedDays.push(i); 
-                if (window.updateXP) window.updateXP(15, e); 
                 if (window.playSound) window.playSound('success');
             } else {
                 completedDays.splice(index, 1);
-                if (window.updateXP) window.updateXP(-15, null); 
             }
             localStorage.setItem('healing_skincare_days', JSON.stringify(completedDays));
             renderCalendar();
@@ -108,7 +114,6 @@ function renderCustomHabits() {
     const todayStr = window.appState.language === 'en' ? 'Today' : 'Hôm nay';
     const completedStr = window.appState.language === 'en' ? 'Completed' : 'Hoàn thành';
     
-    // Dict dịch T2-CN
     const dMon = window.appState.language === 'en' ? 'Mon' : 'T2';
     const dTue = window.appState.language === 'en' ? 'Tue' : 'T3';
     const dWed = window.appState.language === 'en' ? 'Wed' : 'T4';
@@ -118,7 +123,7 @@ function renderCustomHabits() {
     const dSun = window.appState.language === 'en' ? 'Sun' : 'CN';
 
     customHabits.forEach((habit, hIndex) => {
-        habit.days = habit.days || []; // Fallback tránh kẹt array rỗng gây đơ web
+        habit.days = habit.days || []; 
         const isPinned = habit.isPinned || false;
         const isExpanded = habit.isExpanded !== false; 
 
@@ -129,13 +134,14 @@ function renderCustomHabits() {
         card.className = `bg-white/40 p-5 rounded-[20px] border ${isPinned ? 'border-indigo-400 shadow-md' : 'border-white/60 shadow-sm'} relative flex flex-col transition-all duration-300`;
         card.style.order = isPinned ? '-1' : '0';
 
+        // SỬA LỖI Ở ĐÂY: bọc habit.name trong thẻ span và thêm class translate-y-[1px]
         card.innerHTML = `
             <div class="flex justify-between items-center mb-3">
                 <div class="font-bold text-[15px] text-slate-800 uppercase flex items-center gap-1.5">
-                    <button class="toggle-pin text-lg ${isPinned ? 'text-indigo-500' : 'text-gray-400 hover:text-indigo-500'} transition-colors" data-index="${hIndex}" title="Ghim">
+                    <button class="toggle-pin text-lg flex items-center justify-center ${isPinned ? 'text-indigo-500' : 'text-gray-400 hover:text-indigo-500'} transition-colors" data-index="${hIndex}" title="Ghim">
                         <i class="${isPinned ? 'ph-fill' : 'ph'} ph-push-pin"></i>
                     </button>
-                    ${habit.name}
+                    <span class="translate-y-[1px]">${habit.name}</span>
                 </div>
                 <div class="flex items-center gap-2">
                     <span class="text-[10px] font-bold text-orange-500 bg-orange-50 px-2 py-0.5 rounded-full flex items-center gap-1 border border-orange-100">
@@ -176,6 +182,15 @@ function renderCustomHabits() {
 
         if (isExpanded) {
             const grid = document.getElementById(`custom-grid-${hIndex}`);
+            
+            // Tính số ô trống bù vào đầu lưới
+            const firstDayIndex = new Date(now.getFullYear(), now.getMonth(), 1).getDay();
+            const blanks = firstDayIndex === 0 ? 6 : firstDayIndex - 1;
+            for (let i = 0; i < blanks; i++) {
+                const blankDiv = document.createElement('div');
+                grid.appendChild(blankDiv);
+            }
+
             for (let i = 1; i <= daysInMonth; i++) {
                 const dayDiv = document.createElement('div');
                 dayDiv.className = 'calendar-day !w-8 !h-8 text-xs'; 
@@ -192,11 +207,9 @@ function renderCustomHabits() {
                     
                     if (index === -1) {
                         habit.days.push(i);
-                        if(window.updateXP) window.updateXP(15, e);
                         if(window.playSound) window.playSound('success');
                     } else {
                         habit.days.splice(index, 1);
-                        if(window.updateXP) window.updateXP(-15, null);
                     }
                     localStorage.setItem('healing_custom_habits', JSON.stringify(customHabits));
                     renderCustomHabits(); 
@@ -342,7 +355,6 @@ if (document.getElementById('btn-save-journal')) {
         localStorage.setItem('healing_journal_logs', JSON.stringify(journalLogs));
         journalTextarea.value = '';
         savedLabel.classList.remove('hidden');
-        if(window.updateXP) window.updateXP(10, e);
         renderJournalLogs();
         setTimeout(() => savedLabel.classList.add('hidden'), 2500);
 
@@ -407,13 +419,35 @@ async function askCunAI(message) {
     }
 }
 
+let cunChatHistory = JSON.parse(localStorage.getItem('healing_cun_chat_history')) || [];
+
+function renderCunChatHistory() {
+    if (!cunChatBox) return;
+    const lang = window.appState.language || 'vi';
+    const introText = lang === 'en' 
+        ? "Woof woof! 🐶 I'm Corgi. Are you having a heavy heart? Tell me everything! ❤️" 
+        : "Gâu gâu! 🐶 Mình là Cún Corgi đây. Cậu đang có tâm sự gì à, kể Cún nghe đi! ❤️";
+    
+    cunChatBox.innerHTML = `<div class="bg-white p-3 rounded-2xl border border-amber-200 text-slate-700 shadow-sm font-medium leading-relaxed">${introText}</div>`;
+    
+    cunChatHistory.forEach(msg => {
+        if (msg.sender === 'user') {
+            cunChatBox.innerHTML += `<div class="bg-amber-500 text-white p-2 rounded-2xl max-w-[85%] ml-auto text-xs border shadow-sm">${msg.text}</div>`;
+        } else {
+            cunChatBox.innerHTML += `<div class="bg-white/90 p-2.5 rounded-2xl max-w-[85%] text-xs font-medium border border-amber-200 shadow-inner text-amber-900 leading-relaxed">${msg.text}</div>`;
+        }
+    });
+    cunChatBox.scrollTop = cunChatBox.scrollHeight;
+}
+
 async function handleSendCun() {
     if (!cunChatBox) return;
     const text = cunChatInput.value.trim(); if (!text) return;
     cunChatInput.value = '';
     
-    cunChatBox.innerHTML += `<div class="bg-amber-500 text-white p-2 rounded-2xl max-w-[85%] ml-auto text-xs border shadow-sm">${text}</div>`;
-    cunChatBox.scrollTop = cunChatBox.scrollHeight;
+    cunChatHistory.push({ sender: 'user', text: text });
+    localStorage.setItem('healing_cun_chat_history', JSON.stringify(cunChatHistory));
+    renderCunChatHistory();
 
     const loadingId = 'cun-loading-' + Date.now();
     cunChatBox.innerHTML += `<div id="${loadingId}" class="bg-amber-100 p-2 rounded-2xl max-w-[85%] text-xs italic text-amber-700 animate-pulse border border-amber-200 shadow-sm">Cún đang vểnh tai nghe... 🐶</div>`;
@@ -424,10 +458,9 @@ async function handleSendCun() {
     if (loadingEl) loadingEl.remove();
     
     const formattedResponse = aiResponse.replace(/\n/g, '<br>');
-    cunChatBox.innerHTML += `<div class="bg-white/90 p-2.5 rounded-2xl max-w-[85%] text-xs font-medium border border-amber-200 shadow-inner text-amber-900 leading-relaxed">${formattedResponse}</div>`;
-    cunChatBox.scrollTop = cunChatBox.scrollHeight;
-    
-    if(window.updateXP) window.updateXP(5);
+    cunChatHistory.push({ sender: 'cun', text: formattedResponse });
+    localStorage.setItem('healing_cun_chat_history', JSON.stringify(cunChatHistory));
+    renderCunChatHistory();
 }
 
 if (btnSendCun) { btnSendCun.addEventListener('click', (e) => { e.stopPropagation(); handleSendCun(); }); }
@@ -478,7 +511,6 @@ function renderFitness() {
             fitnessRoutines[idx].done = e.target.checked;
             
             if (e.target.checked) {
-                if(window.updateXP) window.updateXP(20, e);
                 if(window.playSound) window.playSound('success');
                 
                 const popMsg = document.getElementById('celebration-msg');
@@ -487,8 +519,6 @@ function renderFitness() {
                     popMsg.innerText = `Tuyệt vời ông mặt trời! Bạn đã hoàn thành xuất sắc bài tập: "${fitnessRoutines[idx].name}" 🏃‍♂️💨`;
                     popup.classList.remove('hidden');
                 }
-            } else {
-                if(window.updateXP) window.updateXP(-20, null);
             }
             localStorage.setItem('healing_fitness_routines', JSON.stringify(fitnessRoutines));
         });
@@ -580,20 +610,20 @@ if (btnSaveNote) {
 
         localStorage.setItem('healing_notes', JSON.stringify(savedNotes));
         notesTextarea.value = ''; 
-        if(window.updateXP) window.updateXP(5, e); 
         renderNotes();
     });
 }
 
-// Gán biến ra toàn cục để app.js (hàm applyLanguage) có thể gọi lại và vẽ DOM theo ngôn ngữ
 window.renderCalendar = renderCalendar;
 window.renderCustomHabits = renderCustomHabits;
 window.renderFitness = renderFitness;
 window.renderJournalLogs = renderJournalLogs;
 window.renderNotes = renderNotes;
+window.renderCunChatHistory = renderCunChatHistory;
 
 renderCalendar();
 renderCustomHabits();
 renderFitness();
 renderJournalLogs();
 renderNotes();
+renderCunChatHistory();

@@ -28,7 +28,6 @@ function renderGoals() {
             </div>`;
         }
         
-        // TÍNH TOÁN SỐ TIỀN CÒN LẠI VÀ CHUYỂN NGÔN NGỮ ĐỘNG
         const remaining = goal.target - goal.current;
         const remainingText = remaining > 0 
             ? (lang === 'en' ? `Remaining: ${remaining.toLocaleString()}đ` : `Còn lại: ${remaining.toLocaleString()}đ`) 
@@ -37,7 +36,7 @@ function renderGoals() {
         const btnAddText = lang === 'en' ? 'Add' : 'Cộng';
         const btnEditText = lang === 'en' ? 'Edit' : 'Sửa';
         const btnDelText = lang === 'en' ? 'Del' : 'Xóa';
-        const placeholderText = lang === 'en' ? 'Add amount...' : 'Nhập số tiền...'; // <== ĐÃ SỬA CHỮ SOLO Ở ĐÂY
+        const placeholderText = lang === 'en' ? 'Add amount...' : 'Nhập số tiền...';
 
         const el = document.createElement('div');
         el.className = 'glass-card p-4 relative overflow-hidden';
@@ -132,7 +131,7 @@ if (savingsList) {
                     }
                 }
                 localStorage.setItem('healing_savings_goals', JSON.stringify(goals));
-                window.updateXP(10, e); renderGoals();
+                renderGoals();
             }
         }
         
@@ -210,12 +209,35 @@ async function askGeminiAI(message) {
     }
 }
 
+let aiChatHistory = JSON.parse(localStorage.getItem('healing_ai_chat_history')) || [];
+
+function renderAiChatHistory() {
+    if (!aiChatBox) return;
+    const lang = window.appState.language || 'vi';
+    const introText = lang === 'en'
+        ? "I am your **AI Healing Buddy**! Enter your stats or chat with me! 🌟"
+        : "Mình là **AI Healing Buddy** đây! Điền chỉ số hoặc trò chuyện với mình nhé! 🌟";
+        
+    aiChatBox.innerHTML = `<div class="bg-white p-3 rounded-2xl border border-white text-slate-700 shadow-sm leading-relaxed">${introText}</div>`;
+    
+    aiChatHistory.forEach(msg => {
+        if (msg.sender === 'user') {
+            aiChatBox.innerHTML += `<div class="bg-primary text-white p-2 rounded-2xl max-w-[85%] ml-auto text-xs border shadow-sm">${msg.text}</div>`;
+        } else {
+            aiChatBox.innerHTML += `<div class="bg-white/60 p-2 rounded-2xl max-w-[85%] text-xs border border-white shadow-inner">${msg.text}</div>`;
+        }
+    });
+    aiChatBox.scrollTop = aiChatBox.scrollHeight;
+}
+
 async function handleSendMessage(customText) {
     if (!aiChatBox) return;
     const text = customText || aiChatInput.value.trim(); if (!text) return;
     if(!customText && aiChatInput) aiChatInput.value = '';
-    aiChatBox.innerHTML += `<div class="bg-primary text-white p-2 rounded-2xl max-w-[85%] ml-auto text-xs border shadow-sm">${text}</div>`;
-    aiChatBox.scrollTop = aiChatBox.scrollHeight;
+    
+    aiChatHistory.push({ sender: 'user', text: text });
+    localStorage.setItem('healing_ai_chat_history', JSON.stringify(aiChatHistory));
+    renderAiChatHistory();
 
     const loadingId = 'ai-loading-' + Date.now();
     aiChatBox.innerHTML += `<div id="${loadingId}" class="bg-white/40 p-2 rounded-2xl max-w-[85%] text-xs italic text-gray-500 animate-pulse border border-white">Buddy đang suy nghĩ...</div>`;
@@ -225,12 +247,10 @@ async function handleSendMessage(customText) {
     const loadingEl = document.getElementById(loadingId);
     if (loadingEl) loadingEl.remove();
     
-    // Thay thế ký tự xuống dòng từ Markdown thành thẻ <br> để trình duyệt hiển thị chuẩn xác, không bị gộp dòng
     const formattedResponse = aiResponse.replace(/\n/g, '<br>');
-    
-    aiChatBox.innerHTML += `<div class="bg-white/60 p-2 rounded-2xl max-w-[85%] text-xs border border-white shadow-inner">${formattedResponse}</div>`;
-    aiChatBox.scrollTop = aiChatBox.scrollHeight;
-    window.updateXP(5);
+    aiChatHistory.push({ sender: 'buddy', text: formattedResponse });
+    localStorage.setItem('healing_ai_chat_history', JSON.stringify(aiChatHistory));
+    renderAiChatHistory();
 }
 
 if (btnSendAi) {
@@ -252,3 +272,6 @@ if (btnGenRoutine) {
         handleSendMessage(promptText);
     });
 }
+
+window.renderAiChatHistory = renderAiChatHistory;
+renderAiChatHistory();

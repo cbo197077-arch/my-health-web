@@ -24,7 +24,7 @@ window.playSound = function(type) {
 
 const savedState = JSON.parse(localStorage.getItem('healing_app_state'));
 window.appState = savedState || {
-    level: 1, xp: 0, username: "Người lữ hành", avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=200",
+    username: "Người lữ hành", avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=200",
     soundEnabled: true, glassEnabled: true, themeColor: '#799488', textColor: '#2d3748', titleColor: '#ffffff',
     titleFont: "'Nunito', sans-serif", fontMain: "'Nunito', sans-serif", blurAmount: '16px', bgBlurAmount: '0px',
     bgUrl: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1000&auto=format&fit=crop',
@@ -36,7 +36,18 @@ window.appState = savedState || {
 
 window.saveDataToStorage = function() { localStorage.setItem('healing_app_state', JSON.stringify(window.appState)); };
 
-// LƯU TÊN NGƯỜI DÙNG KHI GÕ
+// LƯU THỜI GIAN NHẮC NHỞ CHO CÁC LỊCH
+const timeInputs = ['time-skincare', 'time-fitness', 'time-custom-habit'];
+timeInputs.forEach(id => {
+    const el = document.getElementById(id);
+    if(el) {
+        el.value = localStorage.getItem('healing_' + id) || '20:00';
+        el.addEventListener('change', (e) => {
+            localStorage.setItem('healing_' + id, e.target.value);
+        });
+    }
+});
+
 const usernameInput = document.getElementById('username-input');
 if (usernameInput) {
     usernameInput.addEventListener('input', (e) => {
@@ -45,7 +56,6 @@ if (usernameInput) {
     });
 }
 
-// BỔ SUNG TỪ ĐIỂN ĐỂ KHÔNG SÓT CHỮ NÀO
 const dict = {
     vi: {
         main_title: "KHÔNG GIAN<br>TINH THẦN <i class='ph-fill ph-leaf text-emerald-400 text-xl drop-shadow-none'></i>", healing_quote_title: "LỜI NHẮN CHỮA LÀNH",
@@ -72,7 +82,8 @@ const dict = {
         api_placeholder: "Dán API Key...", skincare_placeholder: "Toner, Serum...", fit_name_placeholder: "Tên bài tập...", fit_reps_placeholder: "Số cái", fit_mins_placeholder: "Số phút",
         habit_placeholder: "Nhập thói quen mới...", savings_name: "Tên sản phẩm...", savings_target: "Số tiền...", savings_link: "Link ảnh...",
         health_status: "Trạng thái sức khỏe...", health_skin: "Tình trạng da...", journal_placeholder: "Tâm sự vào đây nhé...",
-        sub_title: "Chăm sóc tâm trí • Nuôi dưỡng cảm xúc<br>Sống tích cực mỗi ngày", zodiac_select: "Chọn cung hoàng đạo...",
+        // SỬA LỖI Ở ĐÂY: Dùng 2 thẻ block cho sub_title vi & en
+        sub_title: "<span class='block'>Chăm sóc tâm trí • Nuôi dưỡng cảm xúc</span><span class='block'>Sống tích cực mỗi ngày</span>", zodiac_select: "Chọn cung hoàng đạo...",
         health_height: "Cao (cm)", health_weight: "Nặng (kg)"
     },
     en: {
@@ -100,7 +111,8 @@ const dict = {
         api_placeholder: "Paste API Key...", skincare_placeholder: "Notes...", fit_name_placeholder: "Exercise name...", fit_reps_placeholder: "Reps", fit_mins_placeholder: "Mins",
         habit_placeholder: "New habit...", savings_name: "Goal name...", savings_target: "Amount...", savings_link: "Image link...",
         health_status: "Health Status...", health_skin: "Skin condition...", journal_placeholder: "Write something here...",
-        sub_title: "Nurture your mind • Foster your emotions<br>Live positively every day", zodiac_select: "Select zodiac sign...",
+        // SỬA LỖI Ở ĐÂY: Dùng 2 thẻ block cho sub_title vi & en
+        sub_title: "<span class='block'>Nurture your mind • Foster your emotions</span><span class='block'>Live positively every day</span>", zodiac_select: "Select zodiac sign...",
         health_height: "Height (cm)", health_weight: "Weight (kg)"
     }
 };
@@ -112,19 +124,19 @@ window.applyLanguage = function() {
         if (dict[lang][key]) el.innerHTML = dict[lang][key];
     });
     
-    // Dịch các Placeholder của input
     document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
         const key = el.getAttribute('data-i18n-placeholder');
         if (dict[lang][key]) el.setAttribute('placeholder', dict[lang][key]);
     });
     
-    // Tải lại các giao diện có chứa ngôn ngữ động (T2-CN, Streak, Tháng)
     if (window.renderCalendar) window.renderCalendar();
     if (window.renderCustomHabits) window.renderCustomHabits();
     if (window.renderGoals) window.renderGoals();
     if (window.renderFitness) window.renderFitness();
     if (window.renderJournalLogs) window.renderJournalLogs();
     if (window.renderNotes) window.renderNotes();
+    if (window.renderCunChatHistory) window.renderCunChatHistory();
+    if (window.renderAiChatHistory) window.renderAiChatHistory();
 }
 
 const btnLang = document.getElementById('btn-toggle-lang');
@@ -160,7 +172,7 @@ window.triggerNewQuote = function() {
             "Hành trình vạn dặm luôn bắt đầu từ một bước chân nhỏ. Bạn đang làm rất tốt!",
             "Chậm một chút cũng không sao, miễn là bạn không dừng lại. Hãy ôm lấy bản thân nhé.",
             "Mỗi thói quen nhỏ tích lũy hôm nay chính là một món quà tuyệt vời cho tương lai.",
-            "Bạn đang tiến bộ lên mỗi ngày, ngay cả những lúc bạn cảm thấy mệt mỏi nhất.",
+            "Bạn đang tiến bộ lên mỗi ngày, ngay cả những lúc bạn cảm thấy mệtTrỏi nhất.",
             "Hãy nuôi dưỡng tâm hồn và cơ thể thay vì áp lực. Bạn là một sự tồn tại quý giá."
         ],
         en: [
@@ -214,7 +226,7 @@ function handlePinInput(val) {
             document.getElementById('journal-lock-screen').classList.add('hidden');
             document.getElementById('journal-content-area').classList.remove('opacity-0', 'pointer-events-none');
             enteredPin = ""; updatePinDots();
-            window.playSound('success'); // Thêm âm thanh khi mở khoá thành công
+            window.playSound('success'); 
         } else {
             document.getElementById('pin-error-msg').innerText = "Mã PIN không đúng!";
             enteredPin = ""; setTimeout(() => document.getElementById('pin-error-msg').innerText = "", 2000);
@@ -354,60 +366,17 @@ function applySavedTheme() {
     if (document.getElementById('theme-color')) document.getElementById('theme-color').value = window.appState.themeColor;
     if (document.getElementById('text-color')) document.getElementById('text-color').value = window.appState.textColor || '#2d3748';
     
-    if (document.getElementById('user-level')) document.getElementById('user-level').innerText = window.appState.level;
-    if (document.getElementById('user-xp')) document.getElementById('user-xp').innerText = window.appState.xp;
-    if (document.getElementById('xp-bar')) document.getElementById('xp-bar').style.width = `${window.appState.xp}%`;
-
     if(document.getElementById('blur-val')) document.getElementById('blur-val').innerText = window.appState.blurAmount || '16px';
     if(document.getElementById('range-blur')) document.getElementById('range-blur').value = parseInt(window.appState.blurAmount) || 16;
 
     if(document.getElementById('bg-blur-val')) document.getElementById('bg-blur-val').innerText = window.appState.bgBlurAmount || '0px';
     if(document.getElementById('range-bg-blur')) document.getElementById('range-bg-blur').value = parseInt(window.appState.bgBlurAmount) || 0;
     
-    // Đã thêm việc tự động cập nhật lại API Key khi Load web
     if(document.getElementById('gemini-key-input')) document.getElementById('gemini-key-input').value = window.appState.geminiKey || '';
     
     const overlay = document.getElementById('bg-blur-overlay'); 
     if(overlay) overlay.style.backdropFilter = `blur(${window.appState.bgBlurAmount || '0px'})`;
 }
-
-// Hàm tính và cộng Level đã được chuẩn hóa lại logic
-window.updateXP = function(amount, event) {
-    // Ép kiểu (parseInt) để chống lỗi cộng dồn như chuỗi khi lấy từ LocalStorage
-    window.appState.xp = (parseInt(window.appState.xp) || 0) + parseInt(amount);
-    
-    if (window.appState.xp < 0) { 
-        if (window.appState.level > 1) { 
-            window.appState.level -= 1; window.appState.xp += 100; 
-        } else { window.appState.xp = 0; } 
-    }
-
-    if (event && amount > 0) {
-        let x = 0, y = 0;
-        if (event.pageX) { x = event.pageX; y = event.pageY; } 
-        else if (event.touches) { x = event.touches[0].pageX; y = event.touches[0].pageY; }
-        if (x !== 0 && y !== 0) {
-            const el = document.createElement('div'); el.className = 'xp-float'; el.innerText = `+${amount} XP`;
-            el.style.left = `${x}px`; el.style.top = `${y}px`; document.body.appendChild(el); setTimeout(() => el.remove(), 800);
-        }
-    }
-    
-    let leveledUp = false;
-    while (window.appState.xp >= 100) { 
-        window.appState.level += 1; 
-        window.appState.xp -= 100; 
-        leveledUp = true;
-    }
-    
-    if (leveledUp && amount > 0) window.playSound('success');
-    
-    if (document.getElementById('user-level')) document.getElementById('user-level').innerText = window.appState.level;
-    if (document.getElementById('user-xp')) document.getElementById('user-xp').innerText = window.appState.xp;
-    if (document.getElementById('xp-bar')) document.getElementById('xp-bar').style.width = `${window.appState.xp}%`;
-
-    window.triggerNewQuote(); 
-    window.saveDataToStorage();
-};
 
 if (document.getElementById('realtime-clock')) {
     setInterval(() => {
@@ -437,4 +406,4 @@ document.querySelectorAll('.nav-btn').forEach(btn => {
     });
 });
 
-setTimeout(() => { applySavedTheme(); window.triggerNewQuote(); }, 150);
+applySavedTheme(); window.triggerNewQuote();

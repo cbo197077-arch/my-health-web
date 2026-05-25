@@ -90,7 +90,10 @@
                     <h1 id="main-title-text" class="text-[28px] leading-[1.15] font-serif text-indigo-700 drop-shadow-sm mb-2 font-extrabold tracking-tight" style="font-family: 'Times New Roman', serif;" data-i18n="main_title">
                         KHÔNG GIAN<br>TINH THẦN <i class="ph-fill ph-leaf text-emerald-400 text-xl drop-shadow-none"></i>
                     </h1>
-                    <p class="text-[10px] text-gray-500 font-medium mb-3 leading-relaxed" data-i18n="sub_title">Chăm sóc tâm trí • Nuôi dưỡng cảm xúc<br>Sống tích cực mỗi ngày</p>
+                    <p class="text-[10px] text-gray-500 font-medium mb-3 leading-relaxed" data-i18n="sub_title">
+                        <span class="block">Chăm sóc tâm trí • Nuôi dưỡng cảm xúc</span>
+                        <span class="block">Sống tích cực mỗi ngày</span>
+                    </p>
                     
                     <div class="flex items-center gap-2 mb-4">
                         <p id="realtime-clock" class="text-[10px] font-bold text-slate-600 bg-white/70 px-3 py-1 rounded-full shadow-sm flex items-center gap-1">
@@ -107,21 +110,14 @@
                 </div>
                 
                 <div class="flex flex-col items-center w-[90px] shrink-0">
-                    <div class="text-[10px] text-gray-500 font-medium w-full text-left" data-i18n="hello">Xin chào,</div>
-                    <input type="text" id="username-input" value="Người lữ hành" class="bg-transparent font-bold text-sm outline-none text-slate-800 w-full text-left truncate mb-2">
+                    <div class="text-[10px] text-gray-500 font-medium w-full text-center" data-i18n="hello">Xin chào,</div>
+                    <input type="text" id="username-input" value="Người lữ hành" class="bg-transparent font-bold text-sm outline-none text-slate-800 w-full text-center truncate mb-2">
                     
                     <div class="relative group cursor-pointer mb-3 mt-1" id="avatar-container">
                         <div class="absolute inset-[-4px] bg-gradient-to-tr from-cyan-300 via-purple-300 to-pink-300 rounded-full blur-[4px] opacity-70"></div>
                         <img id="user-avatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=200" class="w-16 h-16 rounded-full object-cover border-[2.5px] border-white relative z-10 shadow-md">
                         <div class="absolute inset-0 z-20 bg-black/40 rounded-full flex items-center justify-center text-white text-[9px] font-bold opacity-0 group-hover:opacity-100 transition-opacity" data-i18n="change_btn">ĐỔI</div>
                         <input type="file" id="avatar-input" accept="image/*" class="hidden">
-                    </div>
-                    
-                    <div class="w-full flex items-center gap-2 mb-1">
-                        <div class="text-[9px] font-bold text-slate-600 whitespace-nowrap">Lv.<span id="user-level">1</span> (<span id="user-xp">0</span>/100)</div>
-                    </div>
-                    <div class="w-full h-1.5 bg-black/10 rounded-full overflow-hidden mb-3">
-                        <div id="xp-bar" class="h-full bg-emerald-400 transition-all duration-500" style="width: 0%;"></div>
                     </div>
                 </div>
             </div>
@@ -149,6 +145,10 @@
                     <div class="flex justify-between items-start mb-4 relative z-20">
                         <h2 class="font-bold text-lg flex items-center gap-2 text-slate-800"><i class="ph-light ph-drop text-indigo-500 text-2xl"></i> <span data-i18n="skincare">Lịch Skincare</span></h2>
                         <div class="flex flex-col items-end gap-2">
+                            <span class="text-[11px] font-bold text-slate-600 bg-white/80 px-2 py-0.5 rounded-md shadow-sm border border-white flex items-center gap-1">
+                                <i class="ph ph-clock text-indigo-500"></i>
+                                <input type="time" id="time-skincare" class="bg-transparent outline-none cursor-pointer text-slate-600 font-bold w-auto" value="20:00" onclick="this.showPicker()">
+                            </span>
                             <span id="streak-counter" class="text-[10px] font-bold text-orange-500 bg-orange-50 px-2.5 py-1 rounded-full flex items-center gap-1 border border-orange-100 shadow-sm transition-all">
                                 <i class="ph-fill ph-fire text-orange-400"></i> 0 ngày liên tiếp
                             </span>
@@ -183,7 +183,10 @@
                 <div class="glass-card p-5">
                     <div class="flex justify-between items-start mb-3">
                         <h2 class="font-bold text-lg flex items-center gap-2 text-slate-800"><i class="ph ph-sneaker text-indigo-500 text-2xl"></i> <span data-i18n="fitness">Lịch Thể Dục</span></h2>
-                        <span class="text-[11px] font-bold text-slate-600 bg-white/80 px-2 py-0.5 rounded-md shadow-sm border border-white"><i class="ph ph-clock"></i> 20:00</span>
+                        <span class="text-[11px] font-bold text-slate-600 bg-white/80 px-2 py-0.5 rounded-md shadow-sm border border-white flex items-center gap-1">
+                            <i class="ph ph-clock text-indigo-500"></i>
+                            <input type="time" id="time-fitness" class="bg-transparent outline-none cursor-pointer text-slate-600 font-bold w-auto" value="20:00" onclick="this.showPicker()">
+                        </span>
                     </div>
                     <div class="space-y-2 mb-4 bg-white/30 p-3 rounded-2xl border border-white/80">
                         <input type="text" id="custom-fit-input" data-i18n-placeholder="fit_name_placeholder" placeholder="Tên bài tập..." class="w-full p-2.5 rounded-xl glass-input text-sm font-semibold">
@@ -197,8 +200,12 @@
                 </div>
 
                 <div class="glass-card p-5">
-                    <div class="flex justify-between items-start mb-3">
+                    <div class="flex justify-between items-start mb-4">
                         <h2 class="font-bold text-lg flex items-center gap-2 text-slate-800"><i class="ph ph-calendar-plus text-indigo-500 text-2xl"></i> <span data-i18n="custom_habit">Thói Quen Tự Tạo</span></h2>
+                        <span class="text-[11px] font-bold text-slate-600 bg-white/80 px-2 py-0.5 rounded-md shadow-sm border border-white flex items-center gap-1">
+                            <i class="ph ph-clock text-indigo-500"></i>
+                            <input type="time" id="time-custom-habit" class="bg-transparent outline-none cursor-pointer text-slate-600 font-bold w-auto" value="20:00" onclick="this.showPicker()">
+                        </span>
                     </div>
                     <div class="flex gap-2 mb-4 bg-white/30 p-2.5 rounded-2xl border border-white/80">
                         <input type="text" id="new-custom-habit-input" data-i18n-placeholder="habit_placeholder" placeholder="Nhập thói quen mới..." class="flex-1 p-2 rounded-xl glass-input text-sm font-semibold">
